@@ -5,12 +5,12 @@
     <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1234924381658348" crossorigin="anonymous"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cổng thông tin 10T0 — ViDiLab</title>
-    <meta name="description" content="Cổng thông tin lớp 10T0 — THCS-THPT Newton: khảo sát phụ huynh, công cụ thống kê điểm, bảng điều khiển admin.">
+    <title>Không gian dạy và học — THCS-THPT Newton</title>
+    <meta name="description" content="Không gian dạy và học lớp 10T0 — THCS-THPT Newton: tin tức, thông báo và cổng đăng nhập dành cho giáo viên.">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Lora:ital,wght@0,400;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Lora:ital,wght@0,400;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-color: #F0F8FA;
@@ -19,6 +19,7 @@
             --c-blue-1: #B4E1EB;
             --c-blue-2: #95BDD7;
             --c-blue-3: #78A4CB;
+            --c-navy: #3E5C76;
             --accent: #78A4CB;
             --accent-light: #95BDD7;
             --text-main: #34495e;
@@ -31,8 +32,12 @@
         html { scroll-behavior: smooth; }
 
         body {
-            background-color: var(--bg-color);
-            background-image: radial-gradient(circle at center, var(--c-blue-1) 0%, var(--bg-color) 100%);
+            background:
+                radial-gradient(circle at 12% 18%, rgba(249, 232, 162, 0.55), transparent 42%),
+                radial-gradient(circle at 88% 12%, rgba(149, 189, 215, 0.6), transparent 45%),
+                radial-gradient(circle at 50% 95%, rgba(120, 164, 203, 0.45), transparent 55%),
+                linear-gradient(180deg, #eaf6f9 0%, #dcf0f5 100%);
+            background-attachment: fixed;
             color: var(--text-main);
             font-family: 'Lora', serif;
             min-height: 100vh;
@@ -46,10 +51,10 @@
             position: sticky; top: 0; z-index: 100;
             display: flex; align-items: center; justify-content: space-between;
             padding: 0.9rem 1.5rem;
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border-bottom: 1px solid rgba(120, 164, 203, 0.25);
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(14px) saturate(180%);
+            -webkit-backdrop-filter: blur(14px) saturate(180%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.4);
         }
         .navbar .brand {
             display: flex; align-items: center; gap: 0.7rem;
@@ -92,79 +97,130 @@
             .nav-menu a { padding: 0.8rem 1rem; }
         }
 
-        .container { max-width: 900px; width: 100%; margin: 0 auto; padding: 3rem 1.25rem 2rem; }
+        .container { max-width: 1080px; width: 100%; margin: 0 auto; padding: 2.6rem 1.25rem 2rem; }
 
-        /* Hero */
-        .hero { text-align: center; margin-bottom: 2.8rem; animation: fadeInDown 0.9s ease-out; }
-        .hero .logo {
-            width: 64px; height: 64px; margin: 0 auto 1.2rem;
-            background: var(--c-blue-3); border-radius: 16px;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 10px 25px rgba(120, 164, 203, 0.4);
-        }
-        .hero .logo svg { width: 36px; height: 36px; stroke: #fff; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-        .hero h1 {
-            font-family: 'Merriweather', serif;
-            font-size: 2.2rem; font-weight: 700; color: var(--c-blue-3);
-            line-height: 1.3; margin-bottom: 0.9rem;
-        }
-        .hero .subtitle {
-            display: inline-block; background-color: var(--c-yellow); color: var(--text-main);
-            padding: 0.5rem 1.4rem; border-radius: 8px;
-            font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.95rem;
-            text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1.1rem;
-        }
-        .hero p.lead {
-            max-width: 560px; margin: 0 auto; color: var(--text-dim);
-            font-family: 'Lora', serif; font-size: 1.02rem; line-height: 1.7;
-        }
-
-        /* Function section */
-        .section-title {
+        .eyebrow {
             font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.85rem;
             text-transform: uppercase; letter-spacing: 1px; color: var(--c-blue-3);
             margin-bottom: 1rem; padding-left: 0.1rem;
+            display: flex; align-items: center; gap: 0.6rem;
         }
+        .eyebrow::after { content: ''; flex: 1; height: 1px; background: var(--c-blue-1); }
 
-        .link-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.2rem; margin-bottom: 1rem; }
-        .link-tile {
-            display: flex; flex-direction: column; gap: 0.6rem;
-            text-decoration: none; color: var(--text-main);
-            background: var(--bg-card); border: 1px solid var(--c-blue-1); border-radius: 12px;
-            padding: 1.5rem; transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-            box-shadow: 0 10px 24px rgba(120, 164, 203, 0.1);
+        /* Bento grid */
+        .bento { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: minmax(150px, auto); gap: 1.1rem; margin-bottom: 1rem; }
+
+        .tile {
+            border-radius: 20px; padding: 1.6rem;
+            display: flex; flex-direction: column;
+            position: relative;
             animation: fadeIn 0.8s ease-out;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-        .link-tile:hover {
-            transform: translateY(-4px); border-color: var(--c-blue-3);
-            box-shadow: 0 12px 24px rgba(120, 164, 203, 0.25);
+        .tile.is-link { text-decoration: none; color: inherit; cursor: pointer; }
+        .tile.is-link:hover { transform: translateY(-3px); box-shadow: 0 16px 30px rgba(120, 164, 203, 0.25); }
+
+        .tile-icon {
+            width: 40px; height: 40px; border-radius: 11px; background: rgba(120, 164, 203, 0.15);
+            display: flex; align-items: center; justify-content: center; margin-bottom: auto;
+            flex-shrink: 0;
         }
-        .link-tile .tile-icon {
-            width: 48px; height: 48px; border-radius: 12px; background: var(--c-blue-1);
-            display: flex; align-items: center; justify-content: center; margin-bottom: 0.3rem;
+        .tile-icon svg { width: 21px; height: 21px; stroke: var(--c-blue-3); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+        /* Hero tile */
+        .tile-hero {
+            grid-column: span 2; grid-row: span 2;
+            background: linear-gradient(135deg, rgba(62, 92, 118, 0.82), rgba(120, 164, 203, 0.75));
+            backdrop-filter: blur(18px) saturate(180%);
+            -webkit-backdrop-filter: blur(18px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 0 20px 45px rgba(62, 92, 118, 0.3);
+            color: #fff; justify-content: space-between;
         }
-        .link-tile:hover .tile-icon { background: var(--c-blue-3); }
-        .link-tile .tile-icon svg { width: 26px; height: 26px; stroke: var(--c-blue-3); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; transition: stroke 0.2s ease; }
-        .link-tile:hover .tile-icon svg { stroke: #fff; }
-        .link-tile h3 { font-family: 'Merriweather', serif; font-size: 1.15rem; color: var(--c-blue-3); display: flex; align-items: center; gap: 0.5rem; }
-        .link-tile .badge {
-            font-family: 'Inter', sans-serif; font-size: 0.68rem; font-weight: 600; text-transform: uppercase;
-            letter-spacing: 0.5px; color: var(--text-dim); background: var(--bg-color);
-            border: 1px solid var(--c-blue-1); border-radius: 5px; padding: 0.15rem 0.45rem;
+        .tile-hero .tile-icon { background: rgba(255,255,255,0.15); }
+        .tile-hero .tile-icon svg { stroke: #fff; }
+        .tile-hero h1 {
+            font-family: 'Merriweather', serif; font-weight: 700;
+            font-size: 2rem; line-height: 1.25; margin: 1rem 0 0.6rem;
         }
-        .link-tile p { font-family: 'Inter', sans-serif; font-size: 0.88rem; color: var(--text-dim); line-height: 1.5; }
+        .tile-hero p { font-family: 'Inter', sans-serif; font-size: 0.95rem; color: rgba(255,255,255,0.85); line-height: 1.6; max-width: 30ch; }
+        .tile-hero .tile-cta {
+            margin-top: 1.2rem; align-self: flex-start;
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            background: var(--c-yellow); color: var(--text-main);
+            font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.9rem;
+            padding: 0.7rem 1.3rem; border-radius: 999px;
+            text-decoration: none; transition: transform 0.2s ease;
+        }
+        .tile-hero .tile-cta:hover { transform: translateY(-2px); }
+
+        /* Light tiles (glass) */
+        .tile-light {
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            box-shadow: 0 8px 32px rgba(120, 164, 203, 0.15);
+        }
+        .tile-light h3 { font-family: 'Merriweather', serif; font-size: 1.05rem; color: var(--c-blue-3); margin: 0.9rem 0 0.4rem; }
+        .tile-light p { font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--text-dim); line-height: 1.5; }
+        .tile-light .tile-date { font-family: 'Inter', sans-serif; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-dim); }
+
+        /* Stat tile */
+        .tile-stat { grid-column: span 1; }
+        .tile-stat .stat-num { font-family: 'Merriweather', serif; font-weight: 700; font-size: 2.4rem; color: var(--c-blue-3); line-height: 1; }
+        .tile-stat .stat-label { font-family: 'Inter', sans-serif; font-size: 0.82rem; color: var(--text-dim); margin-top: 0.4rem; }
+
+        /* Announcement wide tile */
+        .tile-announce {
+            grid-column: span 2;
+            background: rgba(249, 232, 162, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            box-shadow: 0 8px 32px rgba(120, 164, 203, 0.15);
+            flex-direction: row; align-items: center; gap: 1.2rem;
+        }
+        .tile-announce .tile-icon { background: rgba(255,255,255,0.5); margin-bottom: 0; }
+        .tile-announce .tile-body h3 { font-family: 'Merriweather', serif; font-size: 1.1rem; color: var(--text-main); margin-bottom: 0.3rem; }
+        .tile-announce .tile-body p { font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #5a5138; line-height: 1.5; }
+        .tile-announce .tile-arrow { margin-left: auto; flex-shrink: 0; }
+        .tile-announce .tile-arrow svg { width: 20px; height: 20px; stroke: var(--text-main); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.2s ease; }
+        .tile-announce:hover .tile-arrow svg { transform: translateX(4px); }
+
+        /* Badge / year tile */
+        .tile-badge {
+            grid-column: span 1; align-items: center; justify-content: center; text-align: center;
+            background: rgba(180, 225, 235, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            box-shadow: 0 8px 32px rgba(120, 164, 203, 0.15);
+            gap: 0.3rem;
+        }
+        .tile-badge .badge-year { font-family: 'Merriweather', serif; font-weight: 700; font-size: 1.4rem; color: var(--c-navy); }
+        .tile-badge .badge-label { font-family: 'Inter', sans-serif; font-size: 0.78rem; color: var(--c-navy); opacity: 0.8; }
 
         .footer-note {
-            text-align: center; margin-top: 2.5rem;
+            text-align: center; margin-top: 2rem;
             font-family: 'Inter', sans-serif; font-size: 0.82rem; color: var(--text-dim);
         }
 
-        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        @media (max-width: 600px) {
-            .hero h1 { font-size: 1.7rem; }
-            .container { padding: 2rem 1rem 1.5rem; }
+        @media (max-width: 860px) {
+            .bento { grid-template-columns: repeat(2, 1fr); }
+            .tile-hero { grid-column: span 2; }
+            .tile-announce { grid-column: span 2; }
+        }
+        @media (max-width: 560px) {
+            .tile-hero h1 { font-size: 1.6rem; }
+            .bento { grid-template-columns: 1fr; grid-auto-rows: auto; }
+            .tile-hero, .tile-stat, .tile-announce, .tile-badge { grid-column: span 1; }
+            .tile-hero { grid-row: auto; min-height: 280px; }
+            .tile { min-height: 130px; }
+            .tile-announce { flex-direction: row; }
+            .container { padding: 1.6rem 1rem 1.5rem; }
         }
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
@@ -175,51 +231,74 @@
     <nav class="navbar">
         <a class="brand" href="./">
             <span class="logo-mini"><svg viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg></span>
-            <span>10T0 — ViDiLab</span>
+            <span>Không gian dạy và học</span>
         </a>
         <button class="nav-toggle" id="nav-toggle" aria-label="Mở menu" aria-expanded="false">
             <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
         </button>
         <ul class="nav-menu" id="nav-menu">
-            <li><a href="#chuc-nang">Chức năng</a></li>
-            <li><a href="./khaosatchiase10t0/">Khảo sát phụ huynh</a></li>
-            <li><a href="./congcuthongkediem/">Thống kê điểm</a></li>
-            <li><a class="nav-cta" href="./admin/">Đăng nhập Admin</a></li>
+            <li><a href="./">Trang chủ</a></li>
+            <li><a href="#tin-tuc">Tin tức</a></li>
+            <li><a class="nav-cta" href="./taikhoan/">Đăng nhập</a></li>
         </ul>
     </nav>
 
-    <div class="container">
-        <div class="hero">
-            <div class="logo">
-                <svg viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
+    <div class="container" id="tin-tuc">
+        <div class="eyebrow">Tin tức &amp; thông báo</div>
+
+        <div class="bento">
+            <div class="tile tile-hero">
+                <span class="tile-icon"><svg viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg></span>
+                <div>
+                    <h1>Không gian dạy và học</h1>
+                    <p>Nơi cập nhật tin tức, thông báo và kết nối Gia đình — Nhà trường cho lớp 10T0, THCS-THPT Newton.</p>
+                </div>
+                <a class="tile-cta" href="./taikhoan/">Đăng nhập <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></a>
             </div>
-            <h1>Cổng thông tin lớp 10T0</h1>
-            <div class="subtitle">THCS-THPT Newton</div>
-            <p class="lead">Nơi kết nối Gia đình và Nhà trường — khảo sát thông tin đầu năm, theo dõi kết quả học tập và các công cụ hỗ trợ giáo viên chủ nhiệm lớp 10T0.</p>
+
+            <div class="tile tile-light tile-stat">
+                <span class="tile-icon"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"></path><path d="M18.7 8l-5.1 5.1-2.8-2.8L7 14"></path></svg></span>
+                <div class="stat-num">03</div>
+                <div class="stat-label">Công cụ số hoá cho lớp học</div>
+            </div>
+
+            <div class="tile tile-badge">
+                <div class="badge-year">2026 – 2027</div>
+                <div class="badge-label">Năm học hiện tại</div>
+            </div>
+
+            <a class="tile tile-announce is-link" href="./khaosatchiase10t0/">
+                <span class="tile-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="8" y1="13" x2="16" y2="13"></line><line x1="8" y1="17" x2="16" y2="17"></line></svg></span>
+                <div class="tile-body">
+                    <h3>Phiếu khảo sát phụ huynh đầu năm</h3>
+                    <p>Kính mời Quý phụ huynh lớp 10T0 dành ít phút chia sẻ thông tin đầu năm học.</p>
+                </div>
+                <span class="tile-arrow"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>
+            </a>
+
+            <div class="tile tile-light">
+                <span class="tile-icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></span>
+                <span class="tile-date">Tháng 9/2026</span>
+                <h3>Lời chào từ giáo viên chủ nhiệm</h3>
+                <p>Chúc mừng năm học mới — rất mong sự đồng hành của các bậc phụ huynh cùng nhà trường.</p>
+            </div>
+
+            <div class="tile tile-light">
+                <span class="tile-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></span>
+                <span class="tile-date">Cập nhật</span>
+                <h3>Không gian dạy và học ra mắt</h3>
+                <p>Cổng thông tin của lớp chính thức đổi diện mạo — gọn nhẹ, dễ theo dõi hơn.</p>
+            </div>
+
+            <div class="tile tile-light">
+                <span class="tile-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></span>
+                <span class="tile-date">Sắp diễn ra</span>
+                <h3>Lịch họp phụ huynh đầu năm</h3>
+                <p>Thời gian cụ thể sẽ được thông báo qua nhóm lớp trong thời gian tới.</p>
+            </div>
         </div>
 
-        <div id="chuc-nang">
-            <div class="section-title">Chức năng</div>
-            <div class="link-grid">
-                <a class="link-tile" href="./khaosatchiase10t0/">
-                    <span class="tile-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="8" y1="13" x2="16" y2="13"></line><line x1="8" y1="17" x2="16" y2="17"></line></svg></span>
-                    <h3>Phiếu khảo sát phụ huynh</h3>
-                    <p>Trang thu thập thông tin đầu năm của lớp 10T0 — dành cho phụ huynh, không cần đăng nhập.</p>
-                </a>
-                <a class="link-tile" href="./congcuthongkediem/">
-                    <span class="tile-icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></span>
-                    <h3>Công cụ thống kê điểm <span class="badge">Đăng nhập</span></h3>
-                    <p>Tải điểm thi tháng, phân loại, biểu đồ & danh sách phụ đạo.</p>
-                </a>
-                <a class="link-tile" href="./admin/">
-                    <span class="tile-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg></span>
-                    <h3>Bảng điều khiển Admin <span class="badge">Đăng nhập</span></h3>
-                    <p>Thống kê, biểu đồ khảo sát, xuất Excel & in báo cáo PDF.</p>
-                </a>
-            </div>
-        </div>
-
-        <p class="footer-note">Đăng nhập một lần tại một trong hai công cụ phía trên sẽ giữ phiên dùng chung cho tab này (SSO).</p>
+        <p class="footer-note">Giáo viên &amp; quản trị viên đăng nhập tại nút "Đăng nhập" phía trên để vào các công cụ theo đúng vai trò.</p>
     </div>
 
     <script>
