@@ -201,6 +201,21 @@
         .tile-badge .badge-year { font-family: 'Merriweather', serif; font-weight: 700; font-size: 1.4rem; color: var(--c-navy); }
         .tile-badge .badge-label { font-family: 'Inter', sans-serif; font-size: 0.78rem; color: var(--c-navy); opacity: 0.8; }
 
+        /* Photo tile */
+        .tile-photo {
+            grid-column: span 2;
+            background-size: cover; background-position: center;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            justify-content: flex-end; padding: 0;
+            box-shadow: 0 8px 32px rgba(120, 164, 203, 0.2);
+        }
+        .tile-photo .tile-scrim {
+            background: linear-gradient(180deg, transparent, rgba(20, 30, 45, 0.85));
+            padding: 1.3rem 1.5rem;
+        }
+        .tile-photo .tile-date { color: rgba(255, 255, 255, 0.85); }
+        .tile-photo h3 { font-family: 'Merriweather', serif; font-size: 1.05rem; color: #fff; margin-top: 0.3rem; }
+
         .footer-note {
             text-align: center; margin-top: 2rem;
             font-family: 'Inter', sans-serif; font-size: 0.82rem; color: var(--text-dim);
@@ -212,14 +227,16 @@
             .bento { grid-template-columns: repeat(2, 1fr); }
             .tile-hero { grid-column: span 2; }
             .tile-announce { grid-column: span 2; }
+            .tile-photo { grid-column: span 2; }
         }
         @media (max-width: 560px) {
             .tile-hero h1 { font-size: 1.6rem; }
             .bento { grid-template-columns: 1fr; grid-auto-rows: auto; }
-            .tile-hero, .tile-stat, .tile-announce, .tile-badge { grid-column: span 1; }
+            .tile-hero, .tile-stat, .tile-announce, .tile-badge, .tile-photo { grid-column: span 1; }
             .tile-hero { grid-row: auto; min-height: 280px; }
             .tile { min-height: 130px; }
             .tile-announce { flex-direction: row; }
+            .tile-photo { min-height: 200px; }
             .container { padding: 1.6rem 1rem 1.5rem; }
         }
         @media (prefers-reduced-motion: reduce) {
@@ -283,12 +300,12 @@
                 <p>Chúc mừng năm học mới — rất mong sự đồng hành của các bậc phụ huynh cùng nhà trường.</p>
             </div>
 
-            <div class="tile tile-light">
-                <span class="tile-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></span>
-                <span class="tile-date">Cập nhật</span>
-                <h3>Không gian dạy và học ra mắt</h3>
-                <p>Cổng thông tin của lớp chính thức đổi diện mạo — gọn nhẹ, dễ theo dõi hơn.</p>
-            </div>
+            <a class="tile tile-photo is-link" href="./tin-tuc/thuy-dien-hoa-binh-2026/" style="background-image: url('./tin-tuc/thuy-dien-hoa-binh-2026/anh/01-toan-canh-dap-thuy-dien.jpg');">
+                <div class="tile-scrim">
+                    <span class="tile-date">Ngoại khoá · 10/09/2026</span>
+                    <h3>Khám phá Nhà máy Thuỷ điện Hoà Bình</h3>
+                </div>
+            </a>
 
             <div class="tile tile-light">
                 <span class="tile-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></span>
