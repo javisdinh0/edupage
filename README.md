@@ -9,7 +9,8 @@ Tách ra từ repo `ividlab` (trước đây phục vụ tại `ividlab.com/dinh
 
 | Đường dẫn | Nội dung |
 |---|---|
-| `index.html` | Trang cổng (đăng nhập SSO + link tới các công cụ) |
+| `index.html` | Trang chủ công khai — tin tức & thông báo |
+| `taikhoan/` | Đăng nhập SSO, hiển thị chức năng theo vai trò (admin / giáo viên) |
 | `admin/` | Bảng điều khiển admin khảo sát |
 | `congcuthongkediem/` | Công cụ thống kê điểm |
 | `khaosatchiase10t0/` | Trang khảo sát chia sẻ 10T0 |
