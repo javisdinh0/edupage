@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1234924381658348" crossorigin="anonymous"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Công cụ thống kê điểm — ViDiLab</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📊</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js deferred (dashboard renders after login); SheetJS lazy-loaded on demand -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0" defer></script>
+    <style>
+        :root {
+            --bg-body: #F1F5F9;
+            --bg-sidebar: #1C2434;
+            --bg-sidebar-hover: #333A48;
+            --text-sidebar: #8A99AF;
+            --text-sidebar-active: #FFFFFF;
+            --bg-card: #FFFFFF;
+            --text-main: #1C2434;
+            --text-muted: #64748B;
+            --primary: #3C50E0;
+            --primary-hover: #303FB1;
+            --border-color: #E2E8F0;
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --bg-subtle: #F8FAFC;
+            --sk-base: #eef2f7;
+            --sk-mid: #e2e8f0;
+            --shadow: rgba(0,0,0,0.05);
+            --shadow-hover: rgba(0,0,0,0.1);
+        }
+        :root[data-theme="dark"] {
+            --bg-body: #0E1521;
+            --bg-sidebar: #161E2C;
+            --bg-sidebar-hover: #28324a;
+            --bg-card: #1A2332;
+            --text-main: #E5E9F0;
+            --text-muted: #94A3B8;
+            --primary: #5B6EF0;
+            --primary-hover: #4453c9;
+            --border-color: #2A3548;
+            --bg-subtle: #222d40;
+            --sk-base: #1f2937;
+            --sk-mid: #2b3a52;
+            --shadow: rgba(0,0,0,0.35);
+            --shadow-hover: rgba(0,0,0,0.5);
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar { width: 280px; background: var(--bg-sidebar); display: flex; flex-direction: column; transition: all 0.3s; z-index: 9999; }
+        .sidebar-header { padding: 2rem 1.5rem; display: flex; align-items: center; gap: 12px; }
+        .sidebar-header h2 { font-size: 1.1rem; line-height: 1.2; margin: 0; color: #FFF; font-weight: 700; }
+        .nav-menu { padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
+        .nav-item { padding: 0.8rem 1.2rem; border-radius: 6px; cursor: pointer; transition: all 0.25s; font-weight: 500; color: var(--text-sidebar); display: flex; align-items: center; gap: 12px; }
+        .nav-item.active { background: var(--bg-sidebar-hover); color: var(--text-sidebar-active); }
+        .nav-item:hover:not(.active) { color: var(--text-sidebar-active); }
+        .sidebar-foot { margin-top: auto; padding: 1rem 1.5rem; }
+        .sidebar-foot a { color: var(--text-sidebar); font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
+        .sidebar-foot a:hover { color: #fff; }
+
+        /* Main */
+        .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .top-header { background: var(--bg-card); min-height: 80px; display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; box-shadow: 0 1px 3px var(--shadow); z-index: 10; gap: 1rem; flex-wrap: wrap; }
+        .top-header h1 { font-size: 1.4rem; margin: 0; font-weight: 600; color: var(--text-main); }
+        .btn-group { display: flex; gap: 12px; flex-wrap: wrap; }
+
+        .btn { padding: 0.6rem 1.2rem; border: none; border-radius: 6px; font-weight: 500; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; display: inline-flex; align-items: center; gap: 8px; font-size: 0.95rem; }
+        .btn:disabled { opacity: 0.6; cursor: default; }
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
+        .btn-excel { background: #107C41; color: white; }
+        .btn-excel:hover:not(:disabled) { background: #0b5e31; }
+        .btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border-color); }
+        .btn-ghost:hover:not(:disabled) { color: var(--text-main); border-color: var(--primary); }
+        .btn-danger { background: transparent; color: var(--danger); border: 1px solid var(--border-color); }
+        .btn-danger:hover:not(:disabled) { border-color: var(--danger); }
+        .btn-theme { background: transparent; color: var(--text-muted); border: 1px solid var(--border-color); padding: 0.6rem; width: 42px; justify-content: center; }
+        .btn-theme:hover { color: var(--text-main); border-color: var(--primary); }
+        .btn-theme .icon-sun { display: none; }
+        :root[data-theme="dark"] .btn-theme .icon-sun { display: block; }
+        :root[data-theme="dark"] .btn-theme .icon-moon { display: none; }
+
+        .main-content { flex: 1; padding: 2rem; overflow-y: auto; }
+        .view { display: none; }
+        .view.active { display: block; }
+
+        /* Cards */
+        .card { background: var(--bg-card); border-radius: 12px; padding: 1.5rem; box-shadow: 0 1px 3px var(--shadow); border: 1px solid var(--border-color); margin-bottom: 1.5rem; }
+        .card h3 { margin: 0 0 1.2rem; font-size: 1.05rem; font-weight: 600; color: var(--text-main); border-bottom: 1px solid var(--border-color); padding-bottom: 0.8rem; }
+        .card h3.plain { border: none; padding: 0; margin-bottom: 1rem; }
+
+        /* Form fields */
+        .field-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+        .field { margin-bottom: 1.1rem; flex: 1; min-width: 180px; }
+        .field label { display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.85rem; color: var(--text-muted); }
+        .field input, .field select {
+            width: 100%; padding: 0.65rem 0.8rem; border: 1px solid var(--border-color); border-radius: 8px;
+            background: var(--bg-subtle); color: var(--text-main); font-family: 'Inter', sans-serif; font-size: 0.95rem;
+        }
+        .field input:focus, .field select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(60,80,224,0.12); }
+
+        .dropzone {
+            border: 2px dashed var(--border-color); border-radius: 12px; padding: 2rem; text-align: center;
+            color: var(--text-muted); cursor: pointer; transition: all 0.2s; background: var(--bg-subtle);
+        }
+        .dropzone:hover, .dropzone.drag { border-color: var(--primary); color: var(--text-main); }
+        .dropzone strong { color: var(--primary); }
+        .dropzone .hint { font-size: 0.85rem; margin-top: 0.4rem; }
+
+        /* Editable table */
+        .table-scroll { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 0.55rem 0.6rem; text-align: left; border-bottom: 1px solid var(--border-color); font-size: 0.9rem; }
+        th { font-weight: 600; color: var(--text-muted); background: var(--bg-subtle); white-space: nowrap; position: sticky; top: 0; }
+        tbody tr:hover { background: var(--bg-subtle); }
+        td input.cell { width: 100%; min-width: 60px; padding: 0.4rem 0.5rem; border: 1px solid transparent; border-radius: 6px; background: transparent; color: var(--text-main); font-family: 'Inter', sans-serif; font-size: 0.9rem; }
+        td input.cell:hover { border-color: var(--border-color); }
+        td input.cell:focus { outline: none; border-color: var(--primary); background: var(--bg-card); box-shadow: 0 0 0 2px rgba(60,80,224,0.12); }
+        td input.cell.num { text-align: center; max-width: 80px; }
+        td.col-name input { min-width: 160px; }
+        tr.remedial { background: rgba(239,68,68,0.06); }
+        tr.remedial:hover { background: rgba(239,68,68,0.1); }
+        .row-del { background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 1rem; padding: 0.2rem 0.4rem; border-radius: 6px; }
+        .row-del:hover { color: var(--danger); background: rgba(239,68,68,0.1); }
+
+        .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.78rem; font-weight: 600; color: #fff; white-space: nowrap; }
+
+        /* Ẩn các cột liên quan điểm thi lần 2 khi tạm bỏ qua (USE_RETAKE = false) */
+        body.no-retake .retake-only { display: none !important; }
+
+        /* KPI */
+        .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2rem; margin-bottom: 1.5rem; }
+        .kpi { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.3rem; box-shadow: 0 1px 3px var(--shadow); }
+        .kpi .kpi-label { color: var(--text-muted); font-size: 0.85rem; font-weight: 500; }
+        .kpi .kpi-value { font-size: 2rem; font-weight: 700; margin-top: 0.3rem; }
+        .kpi .kpi-sub { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem; }
+        .kpi.accent .kpi-value { color: var(--primary); }
+        .kpi.danger .kpi-value { color: var(--danger); }
+        .kpi.success .kpi-value { color: var(--success); }
+
+        .dashboard-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+        .chart-wrapper { position: relative; width: 100%; }
+        .full { grid-column: 1 / -1; }
+
+        .muted-note { color: var(--text-muted); font-size: 0.9rem; }
+        .empty-state { text-align: center; color: var(--text-muted); padding: 3rem 1rem; }
+
+        /* Toast */
+        #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(120%); background: var(--text-main); color: var(--bg-card); padding: 0.8rem 1.4rem; border-radius: 8px; font-size: 0.92rem; font-weight: 500; box-shadow: 0 10px 25px rgba(0,0,0,0.25); transition: transform 0.35s ease; z-index: 10000; max-width: 90vw; }
+        #toast.show { transform: translateX(-50%) translateY(0); }
+        #toast.err { background: var(--danger); color: #fff; }
+        #toast.ok { background: var(--success); color: #fff; }
+
+        /* Skeleton */
+        .sk-line { height: 14px; border-radius: 6px; margin-bottom: 12px; background: linear-gradient(90deg, var(--sk-base) 25%, var(--sk-mid) 37%, var(--sk-base) 63%); background-size: 400% 100%; animation: sk-shimmer 1.3s ease infinite; }
+        .sk-chart { height: 200px; border-radius: 8px; background: linear-gradient(90deg, var(--sk-base) 25%, var(--sk-mid) 37%, var(--sk-base) 63%); background-size: 400% 100%; animation: sk-shimmer 1.3s ease infinite; }
+        @keyframes sk-shimmer { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
+
+        .config-note { background: var(--bg-subtle); border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; font-size: 0.9rem; color: var(--text-muted); }
+        .band-legend { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.5rem; }
+        .band-legend .badge { color: #fff; }
+
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; } }
+
+        @media (max-width: 900px) {
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; padding: 0.8rem 1rem; flex-direction: row; justify-content: space-between; align-items: center; }
+            .sidebar-header { padding: 0; }
+            .nav-menu { flex-direction: row; padding: 0; gap: 8px; }
+            .nav-item span { display: none; }
+            .sidebar-foot { display: none; }
+            .top-header { padding: 1rem; }
+            .main-content { padding: 1rem; }
+        }
+
+        /* Print */
+        @media print {
+            @page { size: A4 portrait; margin: 14mm; }
+            body { background: #fff !important; height: auto; overflow: visible; display: block; }
+            .sidebar, .top-header, .no-print { display: none !important; }
+            .main-wrapper { display: block; overflow: visible; }
+            .main-content { padding: 0; overflow: visible; }
+            .view:not(.active) { display: none !important; }
+            .card, .kpi { box-shadow: none !important; border: 1px solid #ccc; break-inside: avoid; }
+            .dashboard-grid { display: block; }
+            .dashboard-grid .card { margin-bottom: 20px; }
+            canvas { max-width: 100% !important; height: auto !important; }
+            #print-header { display: block !important; text-align: center; margin: 6px 0 20px; border-bottom: 2px solid #000; padding-bottom: 12px; overflow: visible; }
+            /* line-height rộng + đệm trên để KHÔNG cắt mất dấu tiếng Việt ở chữ IN HOA */
+            #print-header h1 { font-size: 21pt; line-height: 1.5; margin: 0 !important; padding-top: 10px; overflow: visible; }
+            #print-header p { font-size: 12pt; line-height: 1.5; margin: 6px 0 0; }
+        }
+        #print-header { display: none; }
+    </style>
+    <script>
+        // Apply saved theme before first paint
+        (function () {
+            var saved = null;
+            try { saved = localStorage.getItem('adminTheme'); } catch (e) {}
+            if (!saved) saved = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', saved);
+        })();
+    </script>
+</head>
+<body>
+
+    <!-- Login Overlay -->
+    <div id="login-overlay" style="position: fixed; inset: 0; background: var(--bg-body); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 1rem;">
+        <div class="card" style="width: 100%; max-width: 400px; padding: 2.5rem; box-shadow: 0 15px 35px rgba(0,0,0,0.15); margin: 0;">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <div style="width:56px;height:56px;background:var(--primary);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto;">
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                </div>
+                <h2 style="margin-top: 1rem; font-size: 1.4rem;">Công cụ thống kê điểm</h2>
+                <p class="muted-note" style="margin: 0.3rem 0 0;">Đăng nhập quản trị</p>
+            </div>
+            <div class="field"><label>Email</label><input type="email" id="login-email" placeholder="Nhập email..." autocomplete="username"></div>
+            <div class="field"><label>Mật khẩu</label><input type="password" id="login-pwd" placeholder="Nhập mật khẩu..." autocomplete="current-password"></div>
+            <button class="btn btn-primary" id="btn-login" style="width: 100%; justify-content: center; padding: 0.85rem; font-size: 1rem;">Đăng Nhập</button>
+            <p id="login-err" style="color: var(--danger); text-align: center; margin-top: 1rem; font-size: 0.9rem; display: none;">Email hoặc mật khẩu không đúng!</p>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" style="flex-shrink:0;"><rect width="32" height="32" rx="8" fill="#3C50E0"/><g stroke="#fff" stroke-width="2" stroke-linecap="round"><line x1="21" y1="23" x2="21" y2="12"/><line x1="16" y1="23" x2="16" y2="9"/><line x1="11" y1="23" x2="11" y2="16"/></g></svg>
+            <div>
+                <h2>Thống kê điểm</h2>
+                <span style="font-weight:400;font-size:0.8rem;color:var(--text-muted);">Lớp Đinh Tiểu Thương</span>
+            </div>
+        </div>
+        <div class="nav-menu">
+            <div class="nav-item active" data-tab="input">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                <span>Nhập điểm</span>
+            </div>
+            <div class="nav-item" data-tab="dashboard">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                <span>Dashboard</span>
+            </div>
+            <div class="nav-item" data-tab="settings">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                <span>Thiết lập</span>
+            </div>
+        </div>
+        <div class="sidebar-foot">
+            <a href="../">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                Về cổng thông tin
+            </a>
+        </div>
+    </div>
+
+    <!-- Main -->
+    <div class="main-wrapper">
+        <div class="top-header">
+            <h1 id="page-title">Nhập điểm</h1>
+            <div class="btn-group">
+                <button class="btn btn-theme" onclick="toggleTheme()" title="Sáng/Tối" aria-label="Chuyển giao diện Sáng/Tối">
+                    <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                    <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                </button>
+                <button class="btn btn-ghost" id="btn-logout" title="Đăng xuất">Đăng xuất</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+
+            <!-- ================= NHẬP ĐIỂM ================= -->
+            <div class="view active" id="view-input">
+                <div class="card">
+                    <h3>1. Thông tin kỳ thi</h3>
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="in-month">Tháng thi</label>
+                            <input type="month" id="in-month">
+                        </div>
+                        <div class="field">
+                            <label for="in-subject">Môn học</label>
+                            <input type="text" id="in-subject" list="subject-list" placeholder="VD: Toán">
+                            <datalist id="subject-list">
+                                <option>Toán</option><option>Ngữ văn</option><option>Tiếng Anh</option>
+                                <option>Vật lí</option><option>Hóa học</option><option>Sinh học</option>
+                                <option>Lịch sử</option><option>Địa lí</option><option>GDKT & PL</option><option>Tin học</option>
+                            </datalist>
+                        </div>
+                        <div class="field">
+                            <label for="in-class">Lớp</label>
+                            <input type="text" id="in-class" placeholder="Tự nhận từ file, có thể sửa">
+                        </div>
+                    </div>
+                    <div class="field-row" style="align-items: flex-end;">
+                        <div class="field" style="margin-bottom:0;">
+                            <label for="load-batch">Hoặc tải đợt đã lưu để sửa</label>
+                            <select id="load-batch"><option value="">— Chọn đợt đã lưu —</option></select>
+                        </div>
+                        <div class="field" style="flex:0 0 auto; min-width:auto; margin-bottom:0;">
+                            <button class="btn btn-ghost" id="btn-load-batch">Tải để sửa</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>2. Tải file Excel</h3>
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;">
+                        <span class="muted-note">Chưa có file? Tải mẫu chuẩn về, điền điểm rồi tải lên.</span>
+                        <button class="btn btn-ghost" id="btn-template" type="button">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                            Tải file mẫu (.xlsx)
+                        </button>
+                    </div>
+                    <div class="dropzone" id="dropzone">
+                        <input type="file" id="file-input" accept=".xlsx,.xls" hidden>
+                        <div>Kéo–thả file <strong>.xlsx</strong> vào đây, hoặc <strong>bấm để chọn</strong></div>
+                        <div class="hint">Đúng mẫu "Phân tích điểm": tên lớp ở ô E1, các cột TB / Lần 1 / Thi lại.</div>
+                    </div>
+                </div>
+
+                <div class="card" id="edit-card" style="display:none;">
+                    <h3 class="plain">3. Kiểm tra & chỉnh sửa điểm</h3>
+                    <p class="muted-note" style="margin-top:0;" id="edit-help">Sửa trực tiếp trong ô. Cột <strong>Điểm cuối</strong> = Thi lại nếu có, ngược lại Lần 1. Học sinh <strong>Lần 1 &lt; 5</strong> được tô đỏ và đưa vào danh sách phụ đạo.</p>
+                    <div class="band-legend" id="edit-legend"></div>
+                    <div class="table-scroll" style="margin-top:1rem;">
+                        <table id="edit-table">
+                            <thead>
+                                <tr>
+                                    <th>TT</th><th>Mã HS</th><th>Họ tên</th><th>Ngày sinh</th><th>Ghi chú</th>
+                                    <th>TB</th><th>Lần 1</th><th class="retake-only">Thi lại</th><th class="retake-only">Điểm cuối</th><th>Xếp loại</th><th></th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div style="display:flex; gap:12px; margin-top:1.2rem; flex-wrap:wrap;">
+                        <button class="btn btn-ghost" id="btn-add-row">+ Thêm dòng</button>
+                        <button class="btn btn-primary" id="btn-save" style="margin-left:auto;">Lưu lên Google Sheet</button>
+                        <button class="btn btn-danger" id="btn-delete-batch" style="display:none;">Xóa đợt này</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= DASHBOARD ================= -->
+            <div class="view" id="view-dashboard">
+                <div id="print-header">
+                    <h1 style="margin:0;">BÁO CÁO THỐNG KÊ ĐIỂM</h1>
+                    <p id="print-sub" class="muted-note" style="margin:0.3rem 0 0;"></p>
+                </div>
+
+                <div class="card no-print">
+                    <div class="field-row">
+                        <div class="field" style="margin-bottom:0;">
+                            <label for="f-subject">Môn</label>
+                            <select id="f-subject"></select>
+                        </div>
+                        <div class="field" style="margin-bottom:0;">
+                            <label for="f-month">Tháng</label>
+                            <select id="f-month"></select>
+                        </div>
+                        <div class="field" style="margin-bottom:0;">
+                            <label for="f-class">Lớp</label>
+                            <select id="f-class"></select>
+                        </div>
+                        <div class="field" style="flex:0 0 auto; min-width:auto; margin-bottom:0; display:flex; align-items:flex-end; gap:10px;">
+                            <button class="btn btn-excel" id="btn-export-excel">Xuất Excel</button>
+                            <button class="btn btn-primary" id="btn-export-pdf">In PDF</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="dash-body">
+                    <div class="empty-state" id="dash-empty">Chưa có dữ liệu. Hãy nhập điểm ở tab "Nhập điểm" trước.</div>
+
+                    <div id="dash-content" style="display:none;">
+                        <div class="kpi-grid">
+                            <div class="kpi accent"><div class="kpi-label">Số bài (theo lọc)</div><div class="kpi-value" id="kpi-count">0</div><div class="kpi-sub" id="kpi-count-sub"></div></div>
+                            <div class="kpi"><div class="kpi-label">Điểm trung bình</div><div class="kpi-value" id="kpi-avg">–</div><div class="kpi-sub" id="kpi-avg-sub">Theo điểm cuối</div></div>
+                            <div class="kpi success"><div class="kpi-label">Tỉ lệ đạt (≥5)</div><div class="kpi-value" id="kpi-pass">–</div><div class="kpi-sub" id="kpi-pass-sub"></div></div>
+                            <div class="kpi danger"><div class="kpi-label">Cần phụ đạo (&lt;5)</div><div class="kpi-value" id="kpi-remedial">0</div><div class="kpi-sub">Lần 1 dưới 5 điểm</div></div>
+                        </div>
+
+                        <div class="dashboard-grid">
+                            <div class="card"><h3>Phân bố xếp loại</h3><div class="chart-wrapper"><canvas id="chartBands"></canvas></div></div>
+                            <div class="card"><h3 id="title-byclass">Điểm TB theo lớp</h3><div class="chart-wrapper"><canvas id="chartByClass"></canvas></div></div>
+                            <div class="card full"><h3 id="title-trend">Xu hướng điểm TB qua các tháng</h3><div class="chart-wrapper"><canvas id="chartTrend"></canvas></div></div>
+                        </div>
+
+                        <div class="card">
+                            <h3 id="title-matrix">Tổng hợp điểm TB: lớp × tháng</h3>
+                            <div class="table-scroll"><table id="matrix-table"><thead></thead><tbody></tbody></table></div>
+                        </div>
+
+                        <div class="card">
+                            <h3>Danh sách phụ đạo (Lần 1 &lt; 5)</h3>
+                            <div class="table-scroll">
+                                <table id="remedial-table">
+                                    <thead><tr><th>Tháng</th><th>Lớp</th><th>Môn</th><th>Mã HS</th><th>Họ tên</th><th>Lần 1</th><th class="retake-only">Thi lại</th><th class="retake-only">Điểm cuối</th></tr></thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                            <p class="muted-note" id="remedial-empty" style="display:none;">Không có học sinh nào cần phụ đạo trong phạm vi lọc. 🎉</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= THIẾT LẬP ================= -->
+            <div class="view" id="view-settings">
+                <div class="card" style="max-width:640px;">
+                    <h3>Thang xếp loại</h3>
+                    <div class="config-note">
+                        Điểm cuối = <strong>Thi lại</strong> nếu có, ngược lại <strong>Lần 1</strong>. Các mức phân loại cố định:
+                        <div class="band-legend" id="settings-legend" style="margin-top:0.8rem;"></div>
+                    </div>
+                </div>
+                <div class="card" style="max-width:640px;">
+                    <h3>Sĩ số lớp (tuỳ chọn)</h3>
+                    <p class="muted-note" style="margin-top:0;">Dùng để tính "tỉ lệ tham gia". Nhập theo dạng <code>Lớp=Sĩ số</code>, mỗi lớp một dòng. VD:<br><code>12A1=45</code></p>
+                    <div class="field"><textarea id="class-sizes" rows="4" style="width:100%; padding:0.7rem; border:1px solid var(--border-color); border-radius:8px; background:var(--bg-subtle); color:var(--text-main); font-family:'Inter',sans-serif;"></textarea></div>
+                    <button class="btn btn-primary" id="btn-save-settings">Lưu thiết lập</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="toast"></div>
+
+    <script>
+    /* =========================================================================
+       CẤU HÌNH
+       ========================================================================= */
+    // Dán URL /exec của deployment Apps Script MỚI (xem docs/congcuthongkediem/DEPLOY.md).
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbweW0njas-YOLvUpalS0eV8Ash4gfh-wtUDsNmlDwmMxQYwsO075MF2u0CVSGLnREuUoA/exec';
+    const AUTH_KEY = 'dinhtieuthuong_auth';   // phiên dùng chung toàn portal (SSO)
+
+    // Tạm thời BỎ QUA điểm thi lần 2 (Thi lại): điểm cuối = Lần 1, ẩn cột Thi lại.
+    // Đổi thành true để bật lại (điểm cuối = Thi lại nếu có, ngược lại Lần 1).
+    const USE_RETAKE = false;
+
+    // Thang xếp loại (5 mức liền mạch). low <= điểm < high.
+    const BANDS = [
+        { key: 'yeu',  label: 'Yếu (<5)',            short: 'Yếu',      low: -Infinity, high: 5,        color: '#EF4444' },
+        { key: 'tb',   label: 'Trung bình (5–6.75)', short: 'TB',       low: 5,         high: 6.75,     color: '#F59E0B' },
+        { key: 'kha',  label: 'Khá (6.75–7.75)',     short: 'Khá',      low: 6.75,      high: 7.75,     color: '#3C50E0' },
+        { key: 'gioi', label: 'Giỏi (7.75–8.75)',    short: 'Giỏi',     low: 7.75,      high: 8.75,     color: '#10B981' },
+        { key: 'xs',   label: 'Xuất sắc (≥8.75)',    short: 'Xuất sắc', low: 8.75,      high: Infinity, color: '#8B5CF6' }
+    ];
+
+    /* =========================================================================
+       HÀM TIỆN ÍCH
+       ========================================================================= */
+    function $(id) { return document.getElementById(id); }
+
+    function toast(msg, type) {
+        const t = $('toast');
+        t.textContent = msg;
+        t.className = 'show ' + (type || '');
+        clearTimeout(toast._t);
+        toast._t = setTimeout(() => { t.className = t.className.replace('show', '').trim(); }, 3200);
+    }
+
+    function parseNum(v) {
+        if (v === null || v === undefined || v === '') return null;
+        const n = Number(String(v).replace(',', '.').trim());
+        return isNaN(n) ? null : n;
+    }
+
+    // Điểm cuối = thi lại nếu có, ngược lại lần 1.
+    function finalScore(lan1, thiLai) {
+        if (USE_RETAKE) {
+            const t = parseNum(thiLai);
+            if (t !== null) return t;
+        }
+        return parseNum(lan1);
+    }
+
+    function bandOf(score) {
+        if (score === null || score === undefined) return null;
+        for (let i = 0; i < BANDS.length; i++) {
+            if (score >= BANDS[i].low && score < BANDS[i].high) return BANDS[i];
+        }
+        return null;
+    }
+
+    // Chuẩn hoá về "YYYY-MM". Google Sheets có thể tự đổi "2026-06" thành kiểu ngày
+    // rồi trả về chuỗi ISO ("2026-06-30T17:00:00.000Z") — lấy theo UTC để ra đúng
+    // tháng người dùng đã nhập (không lệch múi giờ).
+    function normalizeMonth(v) {
+        if (v === null || v === undefined) return '';
+        const s = String(v).trim();
+        if (!s) return '';
+        const m = /^(\d{4})-(\d{2})/.exec(s);
+        if (m) {
+            if (s.indexOf('T') !== -1) {
+                const d = new Date(s);
+                if (!isNaN(d.getTime())) return d.getUTCFullYear() + '-' + String(d.getUTCMonth() + 1).padStart(2, '0');
+            }
+            return m[1] + '-' + m[2];
+        }
+        return s;
+    }
+
+    // Hiển thị dạng "MM/YYYY" (ví dụ 06/2026), không còn đuôi giờ.
+    function monthLabel(v) {
+        const n = normalizeMonth(v);
+        const m = /^(\d{4})-(\d{2})$/.exec(n);
+        return m ? (m[2] + '/' + m[1]) : (n || '');
+    }
+
+    function round2(n) { return Math.round(n * 100) / 100; }
+
+    function excelSerialToDate(v) {
+        const ms = Math.round((v - 25569) * 86400000);
+        const d = new Date(ms);
+        if (isNaN(d)) return '';
+        const dd = String(d.getUTCDate()).padStart(2, '0');
+        const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
+        return dd + '/' + mm + '/' + d.getUTCFullYear();
+    }
+
+    async function sha256(message) {
+        const buf = new TextEncoder().encode(message);
+        const hash = await crypto.subtle.digest('SHA-256', buf);
+        return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    function loadScript(src) {
+        return new Promise((resolve, reject) => {
+            const s = document.createElement('script');
+            s.src = src; s.onload = resolve;
+            s.onerror = () => reject(new Error('Không tải được: ' + src));
+            document.head.appendChild(s);
+        });
+    }
+
+    function configured() {
+        return SCRIPT_URL && SCRIPT_URL.indexOf('PASTE_YOUR') === -1;
+    }
+
+    /* =========================================================================
+       API (POST + passHash)
+       ========================================================================= */
+    let session = null; // { email, passHash }
+
+    async function api(action, extra) {
+        if (!configured()) throw new Error('CHƯA CẤU HÌNH SCRIPT_URL — xem docs/congcuthongkediem/DEPLOY.md');
+        const body = Object.assign({ action, email: session ? session.email : '', passHash: session ? session.passHash : '' }, extra || {});
+        const res = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // simple request -> no CORS preflight
+            body: JSON.stringify(body)
+        });
+        return await res.json();
+    }
+
+    /* =========================================================================
+       ĐĂNG NHẬP
+       ========================================================================= */
+    async function doLogin() {
+        const email = $('login-email').value.trim();
+        const pwd = $('login-pwd').value;
+        if (!pwd) { $('login-pwd').focus(); return; }
+        const btn = $('btn-login');
+        btn.textContent = 'Đang kiểm tra...'; btn.disabled = true;
+        $('login-err').style.display = 'none';
+        try {
+            const passHash = await sha256(pwd);
+            session = { email, passHash };
+            const result = await api('login');
+            if (result && result.ok) {
+                try { sessionStorage.setItem(AUTH_KEY, JSON.stringify(session)); } catch (e) {}
+                $('login-overlay').style.display = 'none';
+                await bootstrap();
+                return;
+            }
+            if (result && result.error === 'SERVER_NOT_CONFIGURED') {
+                $('login-err').textContent = 'Server chưa đặt ADMIN_PASSWORD (xem docs/congcuthongkediem/DEPLOY.md).';
+                $('login-err').style.display = 'block';
+            }
+        } catch (e) {
+            console.error(e);
+            $('login-err').textContent = configured() ? 'Email hoặc mật khẩu không đúng!' : 'Chưa cấu hình SCRIPT_URL — xem docs/congcuthongkediem/DEPLOY.md.';
+            $('login-err').style.display = 'block';
+        }
+        session = null;
+        $('login-err').style.display = 'block';
+        btn.textContent = 'Đăng Nhập'; btn.disabled = false;
+    }
+
+    async function tryAutoAuth() {
+        let saved = null;
+        try { saved = JSON.parse(sessionStorage.getItem(AUTH_KEY) || 'null'); } catch (e) {}
+        if (!saved || !saved.passHash) return false;
+        session = saved;
+        try {
+            const result = await api('login');
+            if (result && result.ok) { $('login-overlay').style.display = 'none'; await bootstrap(); return true; }
+        } catch (e) {}
+        session = null;
+        try { sessionStorage.removeItem(AUTH_KEY); } catch (e) {}
+        return false;
+    }
+
+    /* =========================================================================
+       DỮ LIỆU (cache từ server)
+       ========================================================================= */
+    let allRecords = []; // [{thang, lop, mon, tt, maHS, hoTen, ngaySinh, ghiChu, tb, lan1, thiLai}]
+
+    function parseServerData(data2d) {
+        if (!Array.isArray(data2d) || data2d.length < 2) return [];
+        const h = data2d[0];
+        const idx = name => h.indexOf(name);
+        const iT = idx('Tháng'), iL = idx('Lớp'), iM = idx('Môn'), iTT = idx('TT'),
+              iMa = idx('Mã HS'), iHo = idx('Họ tên'), iNs = idx('Ngày sinh'),
+              iGc = idx('Ghi chú'), iTb = idx('TB'), iL1 = idx('Lần 1'), iTl = idx('Thi lại');
+        const out = [];
+        for (let r = 1; r < data2d.length; r++) {
+            const row = data2d[r];
+            const thang = normalizeMonth(row[iT]);
+            const lop = (row[iL] || '').toString().trim();
+            const mon = (row[iM] || '').toString().trim();
+            if (!thang && !lop && !mon) continue;
+            out.push({
+                thang, lop, mon,
+                tt: row[iTT], maHS: (row[iMa] || '').toString(), hoTen: (row[iHo] || '').toString(),
+                ngaySinh: (row[iNs] || '').toString(), ghiChu: (row[iGc] || '').toString(),
+                tb: row[iTb], lan1: row[iL1], thiLai: row[iTl]
+            });
+        }
+        return out;
+    }
+
+    async function refreshData() {
+        const res = await api('list');
+        allRecords = (res && res.ok) ? parseServerData(res.data) : [];
+        populateBatchPicker();
+        populateFilters();
+    }
+
+    function batchKeys() {
+        const set = {};
+        allRecords.forEach(r => { set[r.thang + '|' + r.lop + '|' + r.mon] = true; });
+        return Object.keys(set).sort();
+    }
+
+    function distinct(field) {
+        const set = {};
+        allRecords.forEach(r => { if (r[field]) set[r[field]] = true; });
+        return Object.keys(set).sort();
+    }
+
+    /* =========================================================================
+       TAB: NHẬP ĐIỂM — parse + bảng chỉnh sửa
+       ========================================================================= */
+    let editingSavedBatch = null; // {thang, lop, mon} nếu đang sửa đợt đã lưu
+
+    function renderLegend(el) {
+        el.innerHTML = BANDS.map(b => `<span class="badge" style="background:${b.color}">${b.label}</span>`).join('');
+    }
+
+    function addEditRow(row) {
+        const tbody = $('edit-table').querySelector('tbody');
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><input class="cell num f-tt" value="${escAttr(row.tt)}"></td>
+            <td><input class="cell f-maHS" value="${escAttr(row.maHS)}"></td>
+            <td class="col-name"><input class="cell f-hoTen" value="${escAttr(row.hoTen)}"></td>
+            <td><input class="cell f-ngaySinh" value="${escAttr(row.ngaySinh)}"></td>
+            <td><input class="cell f-ghiChu" value="${escAttr(row.ghiChu)}"></td>
+            <td><input class="cell num f-tb" inputmode="decimal" value="${escAttr(row.tb)}"></td>
+            <td><input class="cell num f-lan1" inputmode="decimal" value="${escAttr(row.lan1)}"></td>
+            <td class="retake-only"><input class="cell num f-thiLai" inputmode="decimal" value="${escAttr(row.thiLai)}"></td>
+            <td class="c-final retake-only">–</td>
+            <td class="c-band">–</td>
+            <td><button class="row-del" title="Xóa dòng">✕</button></td>`;
+        tbody.appendChild(tr);
+        updateRowComputed(tr);
+    }
+
+    function escAttr(v) {
+        if (v === null || v === undefined) return '';
+        return String(v).replace(/"/g, '&quot;').replace(/</g, '&lt;');
+    }
+
+    function updateRowComputed(tr) {
+        const lan1 = tr.querySelector('.f-lan1').value;
+        const thiLai = tr.querySelector('.f-thiLai').value;
+        const fs = finalScore(lan1, thiLai);
+        const band = bandOf(fs);
+        tr.querySelector('.c-final').textContent = fs === null ? '–' : round2(fs);
+        tr.querySelector('.c-band').innerHTML = band ? `<span class="badge" style="background:${band.color}">${band.short}</span>` : '–';
+        tr.classList.toggle('remedial', parseNum(lan1) !== null && parseNum(lan1) < 5);
+    }
+
+    function collectEditRows() {
+        const rows = [];
+        $('edit-table').querySelectorAll('tbody tr').forEach(tr => {
+            const get = c => tr.querySelector(c).value.trim();
+            const hoTen = get('.f-hoTen');
+            const maHS = get('.f-maHS');
+            if (!hoTen && !maHS) return; // bỏ dòng trống
+            rows.push({
+                tt: get('.f-tt'), maHS, hoTen,
+                ngaySinh: get('.f-ngaySinh'), ghiChu: get('.f-ghiChu'),
+                tb: get('.f-tb'), lan1: get('.f-lan1'), thiLai: get('.f-thiLai')
+            });
+        });
+        return rows;
+    }
+
+    function showEditCard(rows) {
+        const tbody = $('edit-table').querySelector('tbody');
+        tbody.innerHTML = '';
+        rows.forEach(addEditRow);
+        renderLegend($('edit-legend'));
+        $('edit-card').style.display = 'block';
+        $('edit-card').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    async function handleFile(file) {
+        if (!file) return;
+        try {
+            if (typeof XLSX === 'undefined') {
+                toast('Đang tải thư viện đọc Excel...');
+                await loadScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js');
+            }
+            const buf = await file.arrayBuffer();
+            const wb = XLSX.read(buf, { type: 'array' });
+            const ws = wb.Sheets[wb.SheetNames[0]];
+            const aoa = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '', raw: true });
+
+            // Tên lớp ở ô E1 (dòng 0, cột 4)
+            const detectedClass = (aoa[0] && aoa[0][4] != null ? String(aoa[0][4]) : '').trim();
+            if (detectedClass && !$('in-class').value.trim()) $('in-class').value = detectedClass;
+
+            const rows = [];
+            for (let i = 2; i < aoa.length; i++) {
+                const r = aoa[i];
+                if (!r) continue;
+                const firstCell = (r[0] || '').toString().toUpperCase();
+                if (firstCell.indexOf('TỔNG') !== -1) continue;   // bỏ dòng "TỔNG TRUNG BÌNH"
+                const name = (r[2] || '').toString().trim();
+                const maHS = r[1];
+                if (!name && !maHS) continue;                      // bỏ dòng đệm trống
+                let ns = r[3];
+                if (typeof ns === 'number') ns = excelSerialToDate(ns);
+                rows.push({
+                    tt: r[0], maHS: (maHS == null ? '' : String(maHS)), hoTen: name,
+                    ngaySinh: (ns == null ? '' : String(ns)).trim(), ghiChu: (r[4] || '').toString(),
+                    tb: r[5], lan1: r[6], thiLai: r[7]
+                });
+            }
+            if (!rows.length) { toast('Không đọc được dòng học sinh nào từ file.', 'err'); return; }
+            editingSavedBatch = null;
+            $('btn-delete-batch').style.display = 'none';
+            showEditCard(rows);
+            toast('Đã đọc ' + rows.length + ' học sinh' + (detectedClass ? ' — lớp ' + detectedClass : '') + '.', 'ok');
+        } catch (err) {
+            console.error(err);
+            toast('Lỗi đọc file: ' + err.message, 'err');
+        }
+    }
+
+    // Tạo & tải file Excel mẫu đúng định dạng parser đọc (tên lớp ở ô E1, cột Lần 1).
+    async function downloadTemplate() {
+        try {
+            if (typeof XLSX === 'undefined') {
+                toast('Đang tải thư viện...');
+                await loadScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js');
+            }
+            const aoa = [
+                ['DANH SÁCH HỌC SINH LỚP', '', '', '', '12A1', '', 'Lần 1'],
+                ['TT', 'Mã HS', 'Họ tên', 'Ngày sinh', 'Ghi Chú', 'TB', 'Lần 1'],
+                [1, 'HS001', 'Nguyễn Văn A', '01/01/2009', '', 7.5, 8],
+                [2, 'HS002', 'Trần Thị B', '15/03/2009', '', 6, 4.5],
+                [3, '', '', '', '', '', ''],
+                [4, '', '', '', '', '', ''],
+                [5, '', '', '', '', '', '']
+            ];
+            const ws = XLSX.utils.aoa_to_sheet(aoa);
+            ws['!cols'] = [{ wch: 5 }, { wch: 14 }, { wch: 24 }, { wch: 13 }, { wch: 16 }, { wch: 8 }, { wch: 8 }];
+            ws['!merges'] = [
+                { s: { r: 0, c: 0 }, e: { r: 0, c: 3 } }, // "DANH SÁCH HỌC SINH LỚP"
+                { s: { r: 0, c: 4 }, e: { r: 0, c: 5 } }  // ô tên lớp (E1:F1)
+            ];
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Nhap diem');
+            XLSX.writeFile(wb, 'Mau_Nhap_Diem.xlsx');
+            toast('Đã tải file mẫu. Sửa tên lớp ở ô E1, nhập điểm cột "Lần 1" rồi tải lên.', 'ok');
+        } catch (e) {
+            toast('Lỗi tạo file mẫu: ' + e.message, 'err');
+        }
+    }
+
+    async function saveBatch() {
+        const month = $('in-month').value.trim();
+        const subject = $('in-subject').value.trim();
+        const klass = $('in-class').value.trim();
+        if (!month) { toast('Chưa chọn Tháng thi.', 'err'); return; }
+        if (!subject) { toast('Chưa nhập Môn học.', 'err'); return; }
+        if (!klass) { toast('Chưa nhập Lớp.', 'err'); return; }
+        const rows = collectEditRows();
+        if (!rows.length) { toast('Không có dòng nào để lưu.', 'err'); return; }
+
+        const btn = $('btn-save');
+        btn.disabled = true; btn.textContent = 'Đang lưu...';
+        try {
+            const res = await api('saveBatch', { month, 'class': klass, subject, rows });
+            if (res && res.ok) {
+                toast('Đã lưu ' + res.saved + ' dòng (' + subject + ' – ' + klass + ' – ' + monthLabel(month) + ').', 'ok');
+                editingSavedBatch = { thang: month, lop: klass, mon: subject };
+                $('btn-delete-batch').style.display = 'inline-flex';
+                await refreshData();
+            } else {
+                toast('Lưu thất bại: ' + (res && (res.message || res.error) || 'lỗi không rõ'), 'err');
+            }
+        } catch (e) {
+            toast('Lỗi kết nối: ' + e.message, 'err');
+        } finally {
+            btn.disabled = false; btn.textContent = 'Lưu lên Google Sheet';
+        }
+    }
+
+    async function deleteBatch() {
+        if (!editingSavedBatch) return;
+        const b = editingSavedBatch;
+        if (!confirm('Xóa toàn bộ điểm của ' + b.mon + ' – ' + b.lop + ' – ' + monthLabel(b.thang) + '?')) return;
+        try {
+            const res = await api('deleteBatch', { month: b.thang, 'class': b.lop, subject: b.mon });
+            if (res && res.ok) {
+                toast('Đã xóa ' + res.deleted + ' dòng.', 'ok');
+                $('edit-card').style.display = 'none';
+                editingSavedBatch = null;
+                await refreshData();
+            } else { toast('Xóa thất bại.', 'err'); }
+        } catch (e) { toast('Lỗi kết nối: ' + e.message, 'err'); }
+    }
+
+    function populateBatchPicker() {
+        const sel = $('load-batch');
+        const cur = sel.value;
+        const keys = batchKeys();
+        sel.innerHTML = '<option value="">— Chọn đợt đã lưu —</option>' + keys.map(k => {
+            const [t, l, m] = k.split('|');
+            return `<option value="${escAttr(k)}">${escAttr(m)} – ${escAttr(l)} – ${monthLabel(t)}</option>`;
+        }).join('');
+        if (keys.indexOf(cur) !== -1) sel.value = cur;
+    }
+
+    function loadSavedBatch() {
+        const key = $('load-batch').value;
+        if (!key) { toast('Hãy chọn một đợt đã lưu.', 'err'); return; }
+        const [t, l, m] = key.split('|');
+        const rows = allRecords.filter(r => r.thang === t && r.lop === l && r.mon === m)
+            .map(r => ({ tt: r.tt, maHS: r.maHS, hoTen: r.hoTen, ngaySinh: r.ngaySinh, ghiChu: r.ghiChu, tb: r.tb, lan1: r.lan1, thiLai: r.thiLai }));
+        $('in-month').value = t;
+        $('in-class').value = l;
+        $('in-subject').value = m;
+        editingSavedBatch = { thang: t, lop: l, mon: m };
+        showEditCard(rows);
+        $('btn-delete-batch').style.display = 'inline-flex';
+        toast('Đã tải ' + rows.length + ' dòng để chỉnh sửa.', 'ok');
+    }
+
+    /* =========================================================================
+       TAB: DASHBOARD
+       ========================================================================= */
+    let charts = [];
+
+    function themeColors() {
+        const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+        return { dark, tick: dark ? '#94A3B8' : '#64748B', grid: dark ? 'rgba(148,163,184,0.15)' : 'rgba(100,116,139,0.15)', label: dark ? '#C7D0E4' : '#334155' };
+    }
+
+    function fillSelect(sel, values, allLabel) {
+        const cur = sel.value;
+        sel.innerHTML = (allLabel != null ? `<option value="">${allLabel}</option>` : '') +
+            values.map(v => `<option value="${escAttr(v)}">${sel === $('f-month') ? monthLabel(v) : escAttr(v)}</option>`).join('');
+        if (values.indexOf(cur) !== -1) sel.value = cur;      // giữ lựa chọn cũ nếu còn
+        else if (allLabel != null) sel.value = '';            // có mục "Tất cả" -> chọn nó
+        else sel.value = values[0] || '';                     // bắt buộc chọn -> mặc định phần tử đầu
+    }
+
+    function populateFilters() {
+        const subjects = distinct('mon');
+        const months = distinct('thang');
+        const classes = distinct('lop');
+        // Môn: không có "Tất cả" (các phân tích so sánh cần cố định 1 môn mới có nghĩa)
+        fillSelect($('f-subject'), subjects, null);
+        fillSelect($('f-month'), months, 'Tất cả tháng');
+        fillSelect($('f-class'), classes, 'Tất cả lớp');
+    }
+
+    function filterRecords(opts) {
+        return allRecords.filter(r => {
+            if (opts.subject && r.mon !== opts.subject) return false;
+            if (opts.month && r.thang !== opts.month) return false;
+            if (opts.klass && r.lop !== opts.klass) return false;
+            return true;
+        });
+    }
+
+    function avgFinal(records) {
+        const vals = records.map(r => finalScore(r.lan1, r.thiLai)).filter(v => v !== null);
+        if (!vals.length) return null;
+        return vals.reduce((a, b) => a + b, 0) / vals.length;
+    }
+
+    function destroyCharts() { charts.forEach(c => c.destroy()); charts = []; }
+
+    function makeChart(id, config) {
+        const c = new Chart($(id), config);
+        charts.push(c);
+        return c;
+    }
+
+    function renderDashboard() {
+        if (typeof Chart === 'undefined') { setTimeout(renderDashboard, 80); return; }
+        if (typeof ChartDataLabels !== 'undefined' && !renderDashboard._reg) { Chart.register(ChartDataLabels); renderDashboard._reg = true; }
+
+        if (!allRecords.length) {
+            $('dash-empty').style.display = 'block';
+            $('dash-content').style.display = 'none';
+            return;
+        }
+        $('dash-empty').style.display = 'none';
+        $('dash-content').style.display = 'block';
+
+        const subject = $('f-subject').value;
+        const month = $('f-month').value;
+        const klass = $('f-class').value;
+        const tc = themeColors();
+        destroyCharts();
+
+        // ---- KPI + Phân bố xếp loại: theo toàn bộ lọc hiện tại ----
+        const scoped = filterRecords({ subject, month, klass });
+        const finals = scoped.map(r => finalScore(r.lan1, r.thiLai)).filter(v => v !== null);
+        const avg = avgFinal(scoped);
+        const passCount = finals.filter(v => v >= 5).length;
+        const remedial = scoped.filter(r => parseNum(r.lan1) !== null && parseNum(r.lan1) < 5);
+
+        $('kpi-count').textContent = scoped.length;
+        $('kpi-count-sub').textContent = [subject, klass || 'mọi lớp', month ? monthLabel(month) : 'mọi tháng'].filter(Boolean).join(' · ');
+        $('kpi-avg').textContent = avg === null ? '–' : round2(avg);
+        $('kpi-pass').textContent = finals.length ? Math.round(passCount / finals.length * 100) + '%' : '–';
+        $('kpi-pass-sub').textContent = finals.length ? (passCount + '/' + finals.length + ' bài') : '';
+        $('kpi-remedial').textContent = remedial.length;
+
+        // Phân bố xếp loại
+        const bandCounts = BANDS.map(b => finals.filter(v => v >= b.low && v < b.high).length);
+        makeChart('chartBands', {
+            type: 'bar',
+            data: { labels: BANDS.map(b => b.short), datasets: [{ label: 'Số HS', data: bandCounts, backgroundColor: BANDS.map(b => b.color), borderRadius: 6 }] },
+            options: baseOpts(tc, { datalabels: { anchor: 'end', align: 'end', color: tc.label, font: { weight: 'bold' }, formatter: v => v || '' } })
+        });
+        $('chartBands').parentElement.style.height = '300px';
+
+        // ---- Điểm TB theo lớp (subject + month, mọi lớp) ----
+        const byClassRecords = filterRecords({ subject, month });
+        const classList = Array.from(new Set(byClassRecords.map(r => r.lop))).sort();
+        const classAvgs = classList.map(c => { const a = avgFinal(byClassRecords.filter(r => r.lop === c)); return a === null ? 0 : round2(a); });
+        $('title-byclass').textContent = 'Điểm TB theo lớp' + (month ? ' — ' + monthLabel(month) : ' — mọi tháng') + (subject ? ' · ' + subject : '');
+        makeChart('chartByClass', {
+            type: 'bar',
+            data: { labels: classList, datasets: [{ label: 'Điểm TB', data: classAvgs, backgroundColor: tc.dark ? '#5B6EF0' : '#3C50E0', borderRadius: 6 }] },
+            options: baseOpts(tc, { datalabels: { anchor: 'end', align: 'end', color: tc.label, font: { weight: 'bold' }, formatter: v => v ? v.toFixed(2) : '' } }, { max: 10 })
+        });
+        $('chartByClass').parentElement.style.height = '300px';
+
+        // ---- Xu hướng qua các tháng (subject + class) ----
+        const trendClass = klass || (classList[0] || '');
+        const trendRecords = filterRecords({ subject, klass: trendClass });
+        const trendMonths = Array.from(new Set(trendRecords.map(r => r.thang))).sort();
+        const trendData = trendMonths.map(m => { const a = avgFinal(trendRecords.filter(r => r.thang === m)); return a === null ? null : round2(a); });
+        $('title-trend').textContent = 'Xu hướng điểm TB qua các tháng' + (trendClass ? ' — lớp ' + trendClass : '') + (subject ? ' · ' + subject : '');
+        makeChart('chartTrend', {
+            type: 'line',
+            data: { labels: trendMonths.map(monthLabel), datasets: [{ label: 'Điểm TB', data: trendData, borderColor: tc.dark ? '#5B6EF0' : '#3C50E0', backgroundColor: 'rgba(60,80,224,0.15)', fill: true, tension: 0.3, pointRadius: 5, pointBackgroundColor: tc.dark ? '#5B6EF0' : '#3C50E0', spanGaps: true }] },
+            options: baseOpts(tc, { legend: { display: false }, datalabels: { align: 'top', color: tc.label, font: { weight: 'bold' }, formatter: v => v ? v.toFixed(2) : '' } }, { max: 10 }, true)
+        });
+        $('chartTrend').parentElement.style.height = '320px';
+
+        renderMatrix(subject);
+        renderRemedialTable(scoped);
+        updatePrintSub(subject, month, klass);
+    }
+
+    // options cơ bản cho Chart.js (bar ngang KPI/pie tuỳ biến bên ngoài)
+    function baseOpts(tc, pluginsExtra, scaleY, isLine) {
+        const y = Object.assign({ beginAtZero: true, ticks: { color: tc.tick, precision: isLine ? 2 : 0 }, grid: { color: tc.grid } }, scaleY || {});
+        return {
+            responsive: true, maintainAspectRatio: false, animation: { duration: 350 },
+            plugins: Object.assign({ legend: { display: false, labels: { color: tc.label } } }, pluginsExtra || {}),
+            scales: { x: { ticks: { color: tc.tick }, grid: { display: false } }, y: y }
+        };
+    }
+
+    function renderMatrix(subject) {
+        const recs = filterRecords({ subject });
+        const classes = Array.from(new Set(recs.map(r => r.lop))).sort();
+        const months = Array.from(new Set(recs.map(r => r.thang))).sort();
+        $('title-matrix').textContent = 'Tổng hợp điểm TB: lớp × tháng' + (subject ? ' · ' + subject : '');
+        const thead = $('matrix-table').querySelector('thead');
+        const tbody = $('matrix-table').querySelector('tbody');
+        if (!classes.length || !months.length) { thead.innerHTML = ''; tbody.innerHTML = '<tr><td class="muted-note">Chưa đủ dữ liệu.</td></tr>'; return; }
+        thead.innerHTML = '<tr><th>Lớp \\ Tháng</th>' + months.map(m => `<th>${monthLabel(m)}</th>`).join('') + '<th>TB cả kỳ</th></tr>';
+        tbody.innerHTML = classes.map(c => {
+            const cells = months.map(m => { const a = avgFinal(recs.filter(r => r.lop === c && r.thang === m)); return a === null ? '<td class="muted-note">–</td>' : `<td>${round2(a)}</td>`; });
+            const overall = avgFinal(recs.filter(r => r.lop === c));
+            return `<tr><td><strong>${escAttr(c)}</strong></td>${cells.join('')}<td><strong>${overall === null ? '–' : round2(overall)}</strong></td></tr>`;
+        }).join('');
+    }
+
+    function renderRemedialTable(scoped) {
+        const rem = scoped.filter(r => parseNum(r.lan1) !== null && parseNum(r.lan1) < 5)
+            .sort((a, b) => parseNum(a.lan1) - parseNum(b.lan1));
+        const tbody = $('remedial-table').querySelector('tbody');
+        if (!rem.length) { tbody.innerHTML = ''; $('remedial-empty').style.display = 'block'; return; }
+        $('remedial-empty').style.display = 'none';
+        tbody.innerHTML = rem.map(r => {
+            const fs = finalScore(r.lan1, r.thiLai);
+            return `<tr>
+                <td>${monthLabel(r.thang)}</td><td>${escAttr(r.lop)}</td><td>${escAttr(r.mon)}</td>
+                <td>${escAttr(r.maHS)}</td><td><strong>${escAttr(r.hoTen)}</strong></td>
+                <td>${escAttr(r.lan1)}</td><td class="retake-only">${escAttr(r.thiLai)}</td><td class="retake-only">${fs === null ? '–' : round2(fs)}</td>
+            </tr>`;
+        }).join('');
+    }
+
+    function updatePrintSub(subject, month, klass) {
+        $('print-sub').textContent = 'Môn: ' + (subject || '—') + ' · Lớp: ' + (klass || 'Tất cả') + ' · ' + (month ? monthLabel(month) : 'Tất cả các tháng');
+    }
+
+    /* =========================================================================
+       XUẤT DỮ LIỆU
+       ========================================================================= */
+    async function exportExcel() {
+        const subject = $('f-subject').value, month = $('f-month').value, klass = $('f-class').value;
+        const recs = filterRecords({ subject, month, klass });
+        if (!recs.length) { toast('Không có dữ liệu để xuất.', 'err'); return; }
+        try {
+            if (typeof XLSX === 'undefined') { toast('Đang tải thư viện...'); await loadScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'); }
+            const header = USE_RETAKE
+                ? ['Tháng', 'Lớp', 'Môn', 'Mã HS', 'Họ tên', 'Ngày sinh', 'TB', 'Lần 1', 'Thi lại', 'Điểm cuối', 'Xếp loại']
+                : ['Tháng', 'Lớp', 'Môn', 'Mã HS', 'Họ tên', 'Ngày sinh', 'TB', 'Lần 1', 'Xếp loại'];
+            const aoa = [header].concat(recs.map(r => {
+                const fs = finalScore(r.lan1, r.thiLai); const b = bandOf(fs);
+                return USE_RETAKE
+                    ? [monthLabel(r.thang), r.lop, r.mon, r.maHS, r.hoTen, r.ngaySinh, r.tb, r.lan1, r.thiLai, fs === null ? '' : round2(fs), b ? b.short : '']
+                    : [monthLabel(r.thang), r.lop, r.mon, r.maHS, r.hoTen, r.ngaySinh, r.tb, r.lan1, b ? b.short : ''];
+            }));
+            const ws = XLSX.utils.aoa_to_sheet(aoa);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'ThongKeDiem');
+            XLSX.writeFile(wb, 'ThongKeDiem_' + (subject || 'all') + '.xlsx');
+        } catch (e) { toast('Lỗi xuất Excel: ' + e.message, 'err'); }
+    }
+
+    function exportPDF() {
+        const wasDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        if (wasDark) {
+            document.documentElement.setAttribute('data-theme', 'light');
+            renderDashboard();
+            setTimeout(() => { window.print(); document.documentElement.setAttribute('data-theme', 'dark'); renderDashboard(); }, 400);
+        } else {
+            window.print();
+        }
+    }
+
+    /* =========================================================================
+       THIẾT LẬP
+       ========================================================================= */
+    function loadSettings() {
+        renderLegend($('settings-legend'));
+        try { $('class-sizes').value = localStorage.getItem('diemthi_classSizes') || ''; } catch (e) {}
+    }
+    function saveSettings() {
+        try { localStorage.setItem('diemthi_classSizes', $('class-sizes').value); } catch (e) {}
+        toast('Đã lưu thiết lập.', 'ok');
+    }
+
+    /* =========================================================================
+       ĐIỀU HƯỚNG TAB
+       ========================================================================= */
+    const TAB_TITLES = { input: 'Nhập điểm', dashboard: 'Dashboard thống kê', settings: 'Thiết lập' };
+    function switchTab(tab) {
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.tab === tab));
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        $('view-' + tab).classList.add('active');
+        $('page-title').textContent = TAB_TITLES[tab] || '';
+        if (tab === 'dashboard') renderDashboard();
+        if (tab === 'settings') loadSettings();
+    }
+
+    function toggleTheme() {
+        const root = document.documentElement;
+        const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        root.setAttribute('data-theme', next);
+        try { localStorage.setItem('adminTheme', next); } catch (e) {}
+        if ($('view-dashboard').classList.contains('active')) renderDashboard();
+    }
+
+    /* =========================================================================
+       KHỞI ĐỘNG SAU ĐĂNG NHẬP
+       ========================================================================= */
+    async function bootstrap() {
+        renderLegend($('edit-legend'));
+        try { await refreshData(); } catch (e) { toast('Không tải được dữ liệu: ' + e.message, 'err'); }
+    }
+
+    /* =========================================================================
+       GẮN SỰ KIỆN
+       ========================================================================= */
+    document.querySelectorAll('.nav-item').forEach(n => n.addEventListener('click', () => switchTab(n.dataset.tab)));
+    $('btn-login').addEventListener('click', doLogin);
+    $('login-pwd').addEventListener('keypress', e => { if (e.key === 'Enter') doLogin(); });
+    $('btn-logout').addEventListener('click', () => {
+        try { sessionStorage.removeItem(AUTH_KEY); } catch (e) {}
+        location.reload();
+    });
+
+    // Upload
+    const dz = $('dropzone'), fileInput = $('file-input');
+    dz.addEventListener('click', () => fileInput.click());
+    dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag'); });
+    dz.addEventListener('dragleave', () => dz.classList.remove('drag'));
+    dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('drag'); if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
+    fileInput.addEventListener('change', e => { if (e.target.files[0]) handleFile(e.target.files[0]); fileInput.value = ''; });
+
+    // Bảng chỉnh sửa (event delegation)
+    $('edit-table').addEventListener('input', e => {
+        if (e.target.classList.contains('f-lan1') || e.target.classList.contains('f-thiLai')) {
+            updateRowComputed(e.target.closest('tr'));
+        }
+    });
+    $('edit-table').addEventListener('click', e => {
+        if (e.target.classList.contains('row-del')) e.target.closest('tr').remove();
+    });
+    $('btn-add-row').addEventListener('click', () => addEditRow({ tt: '', maHS: '', hoTen: '', ngaySinh: '', ghiChu: '', tb: '', lan1: '', thiLai: '' }));
+    $('btn-save').addEventListener('click', saveBatch);
+    $('btn-delete-batch').addEventListener('click', deleteBatch);
+    $('btn-load-batch').addEventListener('click', loadSavedBatch);
+
+    // Dashboard
+    ['f-subject', 'f-month', 'f-class'].forEach(id => $(id).addEventListener('change', renderDashboard));
+    $('btn-export-excel').addEventListener('click', exportExcel);
+    $('btn-export-pdf').addEventListener('click', exportPDF);
+
+    // Thiết lập
+    $('btn-save-settings').addEventListener('click', saveSettings);
+    $('btn-template').addEventListener('click', downloadTemplate);
+
+    // Áp dụng chế độ bỏ qua điểm thi lần 2 (ẩn cột + đổi nhãn cho khớp)
+    (function applyRetakeMode() {
+        if (USE_RETAKE) return;
+        document.body.classList.add('no-retake');
+        const help = $('edit-help');
+        if (help) help.innerHTML = 'Sửa trực tiếp trong ô. Học sinh <strong>Lần 1 &lt; 5</strong> được tô đỏ và đưa vào danh sách phụ đạo.';
+        const sub = $('kpi-avg-sub');
+        if (sub) sub.textContent = 'Theo điểm Lần 1';
+    })();
+
+    // Mặc định tháng hiện tại
+    (function () {
+        const d = new Date();
+        $('in-month').value = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+    })();
+
+    // Tự đăng nhập nếu còn phiên
+    tryAutoAuth();
+    </script>
+</body>
+</html>

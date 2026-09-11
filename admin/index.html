@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1234924381658348" crossorigin="anonymous"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đinh Tiểu Thương - Admin</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chart libs deferred (dashboard only renders after login); xlsx is lazy-loaded on demand -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0" defer></script>
+    <style>
+        :root {
+            --bg-body: #F1F5F9; /* Slate-100 */
+            --bg-sidebar: #1C2434; /* TailAdmin Dark */
+            --bg-sidebar-hover: #333A48;
+            --text-sidebar: #8A99AF;
+            --text-sidebar-active: #FFFFFF;
+            --bg-card: #FFFFFF;
+            --text-main: #1C2434;
+            --text-muted: #64748B; /* Slate-500 */
+            --primary: #3C50E0; /* TailAdmin Primary */
+            --primary-hover: #303FB1;
+            --border-color: #E2E8F0; /* Slate-200 */
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            /* Theme-aware surfaces */
+            --bg-subtle: #F8FAFC;
+            --sk-base: #eef2f7;
+            --sk-mid: #e2e8f0;
+            --shadow: rgba(0,0,0,0.05);
+            --shadow-hover: rgba(0,0,0,0.1);
+        }
+
+        /* Dark theme overrides (sidebar stays dark navy in both themes) */
+        :root[data-theme="dark"] {
+            --bg-body: #0E1521;
+            --bg-sidebar: #161E2C;
+            --bg-sidebar-hover: #28324a;
+            --bg-card: #1A2332;
+            --text-main: #E5E9F0;
+            --text-muted: #94A3B8;
+            --primary: #5B6EF0;
+            --primary-hover: #4453c9;
+            --border-color: #2A3548;
+            --bg-subtle: #222d40;
+            --sk-base: #1f2937;
+            --sk-mid: #2b3a52;
+            --shadow: rgba(0,0,0,0.35);
+            --shadow-hover: rgba(0,0,0,0.5);
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--bg-sidebar);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s;
+            z-index: 9999;
+        }
+
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.5rem;
+            color: #FFF;
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .nav-menu {
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .nav-item {
+            padding: 0.8rem 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+            color: var(--text-sidebar);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-item.active {
+            background: var(--bg-sidebar-hover);
+            color: var(--text-sidebar-active);
+        }
+
+        .nav-item:hover:not(.active) {
+            color: var(--text-sidebar-active);
+        }
+
+        /* Main Content */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .top-header {
+            background: var(--bg-card);
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            box-shadow: 0 1px 3px var(--shadow);
+            z-index: 10;
+        }
+
+        .top-header h1 {
+            font-size: 1.5rem;
+            margin: 0;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+        }
+
+        .btn-excel { background: #107C41; color: white; }
+        .btn-excel:hover { background: #0b5e31; }
+
+        .btn-pdf { background: var(--primary); color: white; }
+        .btn-pdf:hover { background: var(--primary-hover); }
+
+        /* Theme toggle */
+        .btn-theme {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            padding: 0.6rem;
+            width: 42px;
+            justify-content: center;
+        }
+        .btn-theme:hover { color: var(--text-main); border-color: var(--primary); }
+        .btn-theme .icon-sun { display: none; }
+        .btn-theme .icon-moon { display: block; }
+        :root[data-theme="dark"] .btn-theme .icon-sun { display: block; }
+        :root[data-theme="dark"] .btn-theme .icon-moon { display: none; }
+
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        /* Cards & Grids */
+        .stat-banner {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px var(--shadow);
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .stat-banner h2 {
+            margin: 0;
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 1.2rem;
+        }
+        
+        .stat-banner .highlight {
+            display: block;
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-top: 0.5rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px var(--shadow);
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            box-shadow: 0 10px 15px -3px var(--shadow-hover);
+        }
+        
+        .card h3 {
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.8rem;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        /* Table */
+        .table-container {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px var(--shadow);
+            border: 1px solid var(--border-color);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.95rem;
+        }
+
+        th {
+            font-weight: 600;
+            color: var(--text-muted);
+            background: var(--bg-subtle);
+        }
+
+        tbody tr:hover {
+            background: var(--bg-subtle);
+        }
+
+        #loading {
+            text-align: center;
+            padding: 4rem;
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .print-header {
+            display: none;
+        }
+
+        /* Skeleton loading shimmer */
+        .skeleton-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+        .skeleton-banner { margin-bottom: 1.5rem; }
+        .skeleton {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            overflow: hidden;
+        }
+        .sk-line {
+            height: 14px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            background: linear-gradient(90deg, var(--sk-base) 25%, var(--sk-mid) 37%, var(--sk-base) 63%);
+            background-size: 400% 100%;
+            animation: sk-shimmer 1.3s ease infinite;
+        }
+        .sk-line.title { width: 45%; height: 18px; margin-bottom: 20px; }
+        .sk-chart {
+            height: 180px;
+            border-radius: 8px;
+            background: linear-gradient(90deg, var(--sk-base) 25%, var(--sk-mid) 37%, var(--sk-base) 63%);
+            background-size: 400% 100%;
+            animation: sk-shimmer 1.3s ease infinite;
+        }
+        @keyframes sk-shimmer { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
+
+        /* Table search */
+        .table-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+        .table-search {
+            position: relative;
+            flex: 1;
+            max-width: 320px;
+        }
+        .table-search input {
+            width: 100%;
+            padding: 0.6rem 1rem 0.6rem 2.4rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            box-sizing: border-box;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .table-search input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(60, 80, 224, 0.12);
+        }
+        .table-search svg {
+            position: absolute;
+            left: 0.7rem; top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+        .table-count { color: var(--text-muted); font-size: 0.9rem; }
+        .no-results td { text-align: center; color: var(--text-muted); padding: 2rem; }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.001ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.001ms !important;
+            }
+        }
+
+        /* MOBILE RESPONSIVE CSS */
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar { 
+                width: 100%; 
+                height: auto; 
+                padding: 1rem; 
+                display: flex;
+                flex-direction: row; 
+                justify-content: space-between; 
+                align-items: center; 
+                border-right: none; 
+                border-bottom: 1px solid var(--border-color);
+                z-index: 100;
+            }
+            .sidebar-header { margin-bottom: 0; }
+            .sidebar-header h2 { font-size: 1.2rem; }
+            .nav-menu { 
+                display: flex; 
+                flex-direction: row; 
+                gap: 10px; 
+                margin-top: 0; 
+            }
+            .nav-item { padding: 0.5rem; margin-bottom: 0; }
+            .nav-item span { display: none; }
+            .top-header { 
+                flex-direction: column; 
+                height: auto; 
+                padding: 1rem; 
+                gap: 1rem; 
+                text-align: center; 
+            }
+            .btn-group { width: 100%; justify-content: center; }
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .table-container { overflow-x: auto; padding: 0 1rem; }
+            table { white-space: nowrap; }
+            .main-content { padding: 1rem; }
+            .stat-banner { padding: 1rem; }
+            .stat-banner h2 { font-size: 2rem; }
+        }
+
+        /* NATIVE PRINT CSS FOR A4 REPORT */
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 15mm;
+            }
+
+            body {
+                background: white !important;
+                height: auto;
+                overflow: visible;
+                display: block;
+            }
+
+            .sidebar, .top-header, .table-container {
+                display: none !important; /* Hide UI and raw data table in report */
+            }
+
+            .main-wrapper {
+                display: block;
+                overflow: visible;
+            }
+
+            .main-content {
+                padding: 0;
+                overflow: visible;
+            }
+
+            /* Report Header */
+            .print-header {
+                display: block;
+                text-align: center;
+                margin-bottom: 30px;
+                border-bottom: 2px solid var(--text-main);
+                padding-bottom: 20px;
+            }
+            .print-header h1 {
+                font-size: 24pt;
+                font-weight: 800;
+                margin: 0 0 10px 0;
+                text-transform: uppercase;
+            }
+            .print-header p {
+                font-size: 14pt;
+                color: var(--text-muted);
+                margin: 0;
+            }
+
+            .stat-banner {
+                box-shadow: none;
+                border: 2px solid var(--border-color);
+                margin-bottom: 30px;
+                break-inside: avoid;
+            }
+
+            .dashboard-grid {
+                display: block; /* Disable grid for print, use block to control page breaks */
+            }
+
+            .card { 
+                box-shadow: none !important;
+                border: 1px solid #ccc; 
+                margin-bottom: 30px;
+                break-inside: avoid; /* Prevent cutting chart in half */
+                page-break-inside: avoid;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .card h3 {
+                border-bottom: 1px solid #ccc;
+                color: #000;
+            }
+
+            /* Force canvas to fit width */
+            canvas {
+                max-width: 100% !important;
+                height: auto !important;
+            }
+        }
+    </style>
+    <script>
+        // Apply saved theme before first paint to avoid flash of wrong theme
+        (function () {
+            var saved = null;
+            try { saved = localStorage.getItem('adminTheme'); } catch (e) {}
+            if (!saved) {
+                saved = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+            document.documentElement.setAttribute('data-theme', saved);
+        })();
+    </script>
+</head>
+<body>
+
+    <!-- Login Overlay -->
+    <div id="login-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--bg-body); z-index: 9999; display: flex; align-items: center; justify-content: center;">
+        <div class="card" style="width: 100%; max-width: 400px; padding: 2.5rem; box-shadow: 0 15px 35px rgba(0,0,0,0.1); border: 1px solid var(--border-color); box-sizing: border-box;">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <svg width="48" height="48" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" style="background:#3C50E0; border-radius:12px; padding:4px;">
+                    <path d="M22 10v6M2 10l10-5 10 5-10 5z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                    <path d="M6 12v5c3 3 9 3 12 0v-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+                <h2 style="margin-top: 1rem; font-size: 1.5rem; color: var(--text-main);">Đăng Nhập Quản Trị</h2>
+            </div>
+            <div style="margin-bottom: 1.2rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.95rem; color: var(--text-main);">Email</label>
+                <input type="email" id="login-email" style="width: 100%; padding: 0.8rem 1rem; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box; font-family: 'Inter', sans-serif;" placeholder="Nhập email...">
+            </div>
+            <div style="margin-bottom: 2rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.95rem; color: var(--text-main);">Mật khẩu</label>
+                <input type="password" id="login-pwd" style="width: 100%; padding: 0.8rem 1rem; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box; font-family: 'Inter', sans-serif;" placeholder="Nhập mật khẩu...">
+            </div>
+            <button id="btn-login" style="width: 100%; padding: 0.9rem; background: var(--primary); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 1rem; font-family: 'Inter', sans-serif; transition: all 0.2s;">Đăng Nhập</button>
+            <p id="login-err" style="color: var(--danger); text-align: center; margin-top: 1rem; font-size: 0.9rem; display: none;">Email hoặc mật khẩu không đúng!</p>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <!-- Simple SVG Logo -->
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink: 0;">
+                <rect width="32" height="32" rx="8" fill="#3C50E0"/>
+                <path d="M23 13.5v3.5M6 13.5l8.5-4 8.5 4-8.5 4-8.5-4z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M8.5 14.7v3.5c1.5 2.5 7 2.5 8.5 0v-3.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div style="display: flex; flex-direction: column; justify-content: center;">
+                <h2 style="font-size: 1.1rem; line-height: 1.2; margin: 0;">Đinh Tiểu Thương</h2>
+                <span style="font-weight: 400; font-size: 0.85rem; color: var(--text-muted);">Admindashboard</span>
+            </div>
+        </div>
+        <div class="nav-menu">
+            <div class="nav-item active" onclick="switchTab('dashboard')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+                Khảo Sát 10T0
+            </div>
+            <div class="nav-item" onclick="switchTab('settings')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                Thiết lập
+            </div>
+        </div>
+    </div>
+
+    <div class="main-wrapper">
+        <div class="top-header">
+            <h1>Khảo Sát Phụ Huynh Lớp 10T0</h1>
+            <div class="btn-group">
+                <button class="btn btn-theme" onclick="toggleTheme()" title="Chuyển giao diện Sáng/Tối" aria-label="Chuyển giao diện Sáng/Tối">
+                    <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                    <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                </button>
+                <button class="btn btn-excel" onclick="exportExcel()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="8" y1="13" x2="16" y2="13"></line><line x1="8" y1="17" x2="16" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    Tải Excel Gốc
+                </button>
+                <button class="btn btn-pdf" onclick="exportPDF()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                    In Báo Cáo PDF
+                </button>
+            </div>
+        </div>
+
+        <div class="main-content" id="print-area">
+            
+            <!-- This header is only visible when printing -->
+            <div class="print-header">
+                <h1>Báo Cáo Phân Tích Kết Quả Khảo Sát</h1>
+                <p>Khối/Lớp: 10T0 - Hệ thống: ViDiLab AdminPro</p>
+            </div>
+
+            <div id="loading">
+                <div class="skeleton skeleton-banner">
+                    <div class="sk-line title" style="margin: 0 auto 14px; width: 40%;"></div>
+                    <div class="sk-line" style="width: 20%; height: 36px; margin: 0 auto;"></div>
+                </div>
+                <div class="skeleton-grid">
+                    <div class="skeleton"><div class="sk-line title"></div><div class="sk-chart"></div></div>
+                    <div class="skeleton"><div class="sk-line title"></div><div class="sk-chart"></div></div>
+                    <div class="skeleton"><div class="sk-line title"></div><div class="sk-chart"></div></div>
+                    <div class="skeleton"><div class="sk-line title"></div><div class="sk-chart"></div></div>
+                </div>
+                <p style="text-align:center; color: var(--text-muted); margin-top: 1.5rem; font-size: 0.95rem;">Đang đồng bộ dữ liệu trực tiếp từ Google Sheets...</p>
+            </div>
+
+            <div id="dashboard" style="display: none;">
+                <div class="stat-banner">
+                    <h2>Tổng số phụ huynh hoàn thành khảo sát</h2>
+                    <span class="highlight" id="totalParticipants">0</span>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <h3>Khối thi / Định hướng mục tiêu</h3>
+                        <div class="chart-wrapper"><canvas id="chartMuctieu"></canvas></div>
+                    </div>
+                    <div class="card">
+                        <h3>Năng khiếu nổi bật</h3>
+                        <div class="chart-wrapper"><canvas id="chartNangkhieu"></canvas></div>
+                    </div>
+                    <div class="card">
+                        <h3>Môn học lợi thế (đam mê, điểm cao)</h3>
+                        <div class="chart-wrapper"><canvas id="chartMonLoiThe"></canvas></div>
+                    </div>
+                    <div class="card">
+                        <h3>Môn học e ngại (cần hỗ trợ thêm)</h3>
+                        <div class="chart-wrapper"><canvas id="chartMonENgai"></canvas></div>
+                    </div>
+                    <div class="card">
+                        <h3>Lưu ý y tế đặc biệt</h3>
+                        <div class="chart-wrapper"><canvas id="chartYTe"></canvas></div>
+                    </div>
+                    <div class="card">
+                        <h3>Phương tiện đi lại</h3>
+                        <div class="chart-wrapper"><canvas id="chartPhuongTien"></canvas></div>
+                    </div>
+                    <div class="card">
+                        <h3>Kinh nghiệm Ban đại diện CMHS</h3>
+                        <div class="chart-wrapper"><canvas id="chartKinhNghiem"></canvas></div>
+                    </div>
+                    <div class="card">
+                        <h3>Sẵn sàng tham gia Ban phụ huynh năm nay</h3>
+                        <div class="chart-wrapper"><canvas id="chartSanSang"></canvas></div>
+                    </div>
+                    <div class="card" style="grid-column: 1 / -1;">
+                        <h3>Mong đợi hỗ trợ từ Giáo viên chủ nhiệm</h3>
+                        <div class="chart-wrapper"><canvas id="chartMongdoi"></canvas></div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <h3 style="margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; color: var(--text-main);">Danh sách phản hồi chi tiết</h3>
+                    <div class="table-toolbar">
+                        <div class="table-search">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            <input type="text" id="table-search-input" placeholder="Tìm theo tên hoặc email...">
+                        </div>
+                        <span class="table-count" id="table-count"></span>
+                    </div>
+                    <table id="dataTable">
+                        <thead>
+                            <tr>
+                                <th>Thời gian</th>
+                                <th>Họ Tên Con</th>
+                                <th>Email Phụ Huynh</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Rows will be populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div id="settings-view" style="display: none;">
+                <div class="card" style="max-width: 500px; margin: 0 auto; margin-top: 2rem;">
+                    <h3>Thiết lập hệ thống</h3>
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--text-main);">Tổng số học sinh lớp 10T0:</label>
+                        <input type="number" id="setting-total-students" style="width: 100%; padding: 0.8rem; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box; font-family: 'Inter', sans-serif;" placeholder="Ví dụ: 45">
+                    </div>
+                    <button class="btn btn-pdf" style="width: 100%; justify-content: center; font-size: 1rem; padding: 0.8rem;" onclick="saveSettings()">Lưu Thiết Lập</button>
+                    <div id="setting-msg" style="margin-top: 1rem; color: var(--success); text-align: center; display: none; font-weight: 500;">Đã lưu thành công!</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DataLabels plugin is registered lazily once Chart.js (deferred) has loaded
+        let chartPluginRegistered = false;
+        function ensureChartReady() {
+            if (typeof Chart === 'undefined') return false;
+            if (!chartPluginRegistered && typeof ChartDataLabels !== 'undefined') {
+                Chart.register(ChartDataLabels);
+                chartPluginRegistered = true;
+            }
+            return true;
+        }
+
+        // Lazy-load a script only when needed (used for the heavy xlsx library)
+        function loadScript(src) {
+            return new Promise((resolve, reject) => {
+                const s = document.createElement('script');
+                s.src = src;
+                s.onload = resolve;
+                s.onerror = () => reject(new Error('Không tải được: ' + src));
+                document.head.appendChild(s);
+            });
+        }
+
+        // Public endpoint. Security now lives on the server (Code.gs): data is only
+        // returned when a POST carries the correct password hash. Replace this with the
+        // /exec URL of YOUR Apps Script deployment (see docs/admin/DEPLOY_BAO_MAT.md).
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx-SeWQ9aCi3BbQyg0ODPa0MP8Wa-eiUJxFXQSU6LBLGxnx00O7NwK3Lfgjeqw6Nm4B/exec';
+        const AUTH_KEY = 'dinhtieuthuong_auth'; // phiên dùng chung toàn portal (SSO)
+
+        let rawHeaders = [];
+        let rawData = [];
+        let chartInstances = [];
+
+        // Theme-aware colors for charts
+        function themeColors() {
+            const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+            return {
+                dark: dark,
+                barBg: dark ? '#5B6EF0' : '#3C50E0',
+                barLabel: dark ? '#C7D0E4' : '#3C50E0',
+                tick: dark ? '#94A3B8' : '#64748B',
+                legend: dark ? '#C7D0E4' : '#334155'
+            };
+        }
+
+        // Renders the dashboard from a 2D array [headers, ...rows] returned by the server
+        function renderDashboard(data) {
+            rawHeaders = data[0];
+            rawData = data.slice(1).filter(row => row.length > 0 && row[0]);
+
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+
+            processAndRenderCharts(rawData, rawHeaders);
+            renderTable(rawData, rawHeaders);
+        }
+
+        function processAndRenderCharts(rows, headers) {
+            // Chart.js is deferred — if not ready yet, retry shortly
+            if (!ensureChartReady()) {
+                setTimeout(() => processAndRenderCharts(rows, headers), 60);
+                return;
+            }
+            // Destroy any existing charts (e.g. when re-rendering after theme switch)
+            chartInstances.forEach(c => c.destroy());
+            chartInstances = [];
+            const tc = themeColors();
+
+            const totalTarget = localStorage.getItem('totalStudents') || '?';
+            document.getElementById('totalParticipants').innerText = rows.length + ' / ' + totalTarget;
+
+            function getStats(headerName) {
+                const idx = headers.indexOf(headerName);
+                if (idx === -1) return {};
+                const stats = {};
+                rows.forEach(row => {
+                    if (row[idx]) {
+                        const items = row[idx].toString().split(',').map(s => s.trim()).filter(s => s);
+                        items.forEach(item => {
+                            stats[item] = (stats[item] || 0) + 1;
+                        });
+                    }
+                });
+                return stats;
+            }
+
+            function drawChart(canvasId, type, statsObj, title='') {
+                let labels = Object.keys(statsObj);
+                if (labels.length === 0) return;
+                let data = Object.values(statsObj);
+                
+                // For Bar charts, sort descending for scientific presentation
+                if (type === 'bar') {
+                    const combined = labels.map((l, i) => ({ label: l, value: data[i] }));
+                    combined.sort((a, b) => b.value - a.value);
+                    labels = combined.map(c => c.label);
+                    data = combined.map(c => c.value);
+                }
+
+                // Premium Palette
+                const bgColor = ['#3C50E0', '#80CAEE', '#10B981', '#F59E0B', '#64748B', '#EF4444', '#8B5CF6', '#F472B6', '#14B8A6'];
+
+                const chart = new Chart(document.getElementById(canvasId), {
+                    type: type,
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: title || 'Số lượng',
+                            data: data,
+                            backgroundColor: type === 'pie' ? bgColor : tc.barBg,
+                            borderRadius: type === 'bar' ? 4 : 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: { duration: 400 },
+                        indexAxis: type === 'bar' ? 'y' : 'x',
+                        plugins: {
+                            legend: {
+                                display: type === 'pie',
+                                position: 'right',
+                                labels: { color: tc.legend }
+                            },
+                            datalabels: {
+                                color: type === 'pie' ? '#FFF' : tc.barLabel,
+                                anchor: type === 'pie' ? 'center' : 'end',
+                                align: type === 'pie' ? 'center' : 'end',
+                                font: { weight: 'bold', size: 13 },
+                                formatter: (value, ctx) => {
+                                    if (value === 0) return '';
+                                    if (type === 'pie') {
+                                        const sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                        return ((value / sum) * 100).toFixed(0) + "%";
+                                    }
+                                    return value;
+                                }
+                            }
+                        },
+                        scales: type === 'bar' ? {
+                            x: {
+                                beginAtZero: true,
+                                ticks: { stepSize: 1, precision: 0, color: tc.tick },
+                                grid: { display: false }
+                            },
+                            y: {
+                                ticks: { color: tc.tick },
+                                grid: { display: false }
+                            }
+                        } : {}
+                    }
+                });
+                chartInstances.push(chart);
+                
+                // Set explicit height for canvas wrapper to maintain layout
+                document.getElementById(canvasId).parentElement.style.height = type === 'pie' ? '300px' : (labels.length * 40 + 100) + 'px';
+            }
+
+            drawChart('chartMuctieu', 'pie', getStats('MỤC TIÊU SAU THPT'));
+            drawChart('chartNangkhieu', 'bar', getStats('NĂNG KHIẾU NỔI BẬT'));
+            drawChart('chartMonLoiThe', 'bar', getStats('MÔN HỌC LỢI THẾ (ĐAM MÊ, ĐIỂM CAO)'));
+            drawChart('chartMonENgai', 'bar', getStats('MÔN HỌC E NGẠI (CẦN HỖ TRỢ THÊM)'));
+            drawChart('chartYTe', 'pie', getStats('LƯU Ý Y TẾ ĐẶC BIỆT'));
+            drawChart('chartPhuongTien', 'pie', getStats('PHƯƠNG TIỆN ĐI LẠI'));
+            drawChart('chartKinhNghiem', 'bar', getStats('KINH NGHIỆM BAN ĐẠI DIỆN CMHS'));
+            drawChart('chartSanSang', 'pie', getStats('SẴN SÀNG THAM GIA BAN PHỤ HUYNH NĂM NAY'));
+            drawChart('chartMongdoi', 'bar', getStats('MONG ĐỢI NHÀ TRƯỜNG, GVCN HỖ TRỢ KHÍA CẠNH'));
+        }
+
+        function renderTable(rows, headers) {
+            const tbody = document.querySelector('#dataTable tbody');
+            tbody.innerHTML = '';
+
+            const idxName = headers.indexOf('Họ Tên Con') !== -1 ? headers.indexOf('Họ Tên Con') : 1;
+            const idxEmail = headers.indexOf('Email Phụ Huynh') !== -1 ? headers.indexOf('Email Phụ Huynh') : 2;
+
+            rows.forEach(row => {
+                const tr = document.createElement('tr');
+
+                let dateStr = '';
+                if (row[0]) {
+                    const d = new Date(row[0]);
+                    if (!isNaN(d)) dateStr = d.toLocaleDateString('vi-VN');
+                    else dateStr = row[0];
+                }
+
+                const name = row[idxName] || '';
+                const email = row[idxEmail] || '';
+                tr.dataset.search = (name + ' ' + email).toLowerCase();
+                tr.innerHTML = `
+                    <td>${dateStr}</td>
+                    <td><strong>${name}</strong></td>
+                    <td>${email}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            updateTableCount();
+        }
+
+        function updateTableCount(shown) {
+            const el = document.getElementById('table-count');
+            if (!el) return;
+            const total = document.querySelectorAll('#dataTable tbody tr:not(.no-results)').length;
+            el.textContent = (shown == null || shown === total)
+                ? total + ' phản hồi'
+                : 'Hiển thị ' + shown + ' / ' + total + ' phản hồi';
+        }
+
+        function filterTable() {
+            const q = (document.getElementById('table-search-input').value || '').trim().toLowerCase();
+            const tbody = document.querySelector('#dataTable tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr:not(.no-results)'));
+            let shown = 0;
+            rows.forEach(tr => {
+                const match = !q || (tr.dataset.search || '').includes(q);
+                tr.style.display = match ? '' : 'none';
+                if (match) shown++;
+            });
+            let empty = tbody.querySelector('.no-results');
+            if (shown === 0) {
+                if (!empty) {
+                    empty = document.createElement('tr');
+                    empty.className = 'no-results';
+                    empty.innerHTML = '<td colspan="3">Không tìm thấy phản hồi phù hợp.</td>';
+                    tbody.appendChild(empty);
+                }
+                empty.style.display = '';
+            } else if (empty) {
+                empty.style.display = 'none';
+            }
+            updateTableCount(shown);
+        }
+
+        async function exportExcel() {
+            const btn = document.querySelector('.btn-excel');
+            const original = btn ? btn.innerHTML : '';
+            try {
+                if (typeof XLSX === 'undefined') {
+                    if (btn) { btn.disabled = true; btn.innerHTML = 'Đang tải thư viện...'; }
+                    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js');
+                }
+                const ws = XLSX.utils.aoa_to_sheet([rawHeaders, ...rawData]);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Khao Sat 10T0");
+                XLSX.writeFile(wb, 'ThongKe_KhaoSat_10T0.xlsx');
+            } catch (err) {
+                alert('Không thể xuất Excel: ' + err.message);
+            } finally {
+                if (btn) { btn.disabled = false; btn.innerHTML = original; }
+            }
+        }
+
+        function exportPDF() {
+            // Reports print on white paper — force light theme so chart labels/text stay readable
+            const wasDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            if (wasDark) {
+                document.documentElement.setAttribute('data-theme', 'light');
+                if (rawData.length) processAndRenderCharts(rawData, rawHeaders);
+                setTimeout(() => {
+                    window.print();
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    if (rawData.length) processAndRenderCharts(rawData, rawHeaders);
+                }, 500);
+            } else {
+                window.print();
+            }
+        }
+
+        function toggleTheme() {
+            const root = document.documentElement;
+            const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            root.setAttribute('data-theme', next);
+            try { localStorage.setItem('adminTheme', next); } catch (e) {}
+            // Re-render charts so their text/colors match the new theme
+            if (rawData.length > 0 && document.getElementById('dashboard').style.display !== 'none') {
+                processAndRenderCharts(rawData, rawHeaders);
+            }
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            if(tabId === 'dashboard') {
+                document.querySelectorAll('.nav-item')[0].classList.add('active');
+                document.getElementById('dashboard').style.display = 'block';
+                document.getElementById('settings-view').style.display = 'none';
+            } else {
+                document.querySelectorAll('.nav-item')[1].classList.add('active');
+                document.getElementById('dashboard').style.display = 'none';
+                document.getElementById('settings-view').style.display = 'block';
+                document.getElementById('setting-total-students').value = localStorage.getItem('totalStudents') || '';
+            }
+        }
+
+        function saveSettings() {
+            const val = document.getElementById('setting-total-students').value;
+            localStorage.setItem('totalStudents', val);
+            document.getElementById('setting-msg').style.display = 'block';
+            setTimeout(() => { document.getElementById('setting-msg').style.display = 'none'; }, 2000);
+            
+            // Update immediately if dashboard data is already loaded
+            if(rawData.length > 0) {
+                document.getElementById('totalParticipants').innerText = rawData.length + ' / ' + (val || '?');
+            }
+        }
+
+        async function sha256(message) {
+            const msgBuffer = new TextEncoder().encode(message);                    
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        // Send credentials to the server; returns parsed { ok, data } (server validates the password).
+        async function serverLogin(email, passHash) {
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // simple request -> no CORS preflight
+                body: JSON.stringify({ action: 'login', email: email, passHash: passHash })
+            });
+            return await response.json();
+        }
+
+        async function doAdminLogin() {
+            const email = document.getElementById('login-email').value.trim();
+            const pwd = document.getElementById('login-pwd').value;
+            if (!pwd) return;
+
+            const btn = document.getElementById('btn-login');
+            btn.innerText = 'Đang kiểm tra...';
+            btn.disabled = true;
+            document.getElementById('login-err').style.display = 'none';
+
+            try {
+                const passHash = await sha256(pwd);
+                const result = await serverLogin(email, passHash);
+                if (result && result.ok && Array.isArray(result.data)) {
+                    try { sessionStorage.setItem(AUTH_KEY, JSON.stringify({ email: email, passHash: passHash })); } catch (e) {}
+                    document.getElementById('login-overlay').style.display = 'none';
+                    renderDashboard(result.data);
+                    return;
+                }
+            } catch (e) {
+                console.error(e);
+            }
+            document.getElementById('login-err').style.display = 'block';
+            btn.innerText = 'Đăng Nhập';
+            btn.disabled = false;
+        }
+
+        document.getElementById('btn-login').addEventListener('click', doAdminLogin);
+
+        // If the portal (dinhtieuthuong/) already logged in this tab, skip the password prompt.
+        (async function tryAutoAuth() {
+            let saved = null;
+            try { saved = JSON.parse(sessionStorage.getItem(AUTH_KEY) || 'null'); } catch (e) {}
+            if (!saved || !saved.passHash) return; // no portal session -> show login overlay
+
+            document.getElementById('login-overlay').style.display = 'none'; // show skeleton while we verify
+            try {
+                const result = await serverLogin(saved.email || '', saved.passHash);
+                if (result && result.ok && Array.isArray(result.data)) {
+                    renderDashboard(result.data);
+                    return;
+                }
+            } catch (e) { /* fall through */ }
+            // Session invalid/expired -> fall back to manual login
+            try { sessionStorage.removeItem(AUTH_KEY); } catch (e) {}
+            document.getElementById('login-overlay').style.display = 'flex';
+        })();
+
+        document.getElementById('login-pwd').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                document.getElementById('btn-login').click();
+            }
+        });
+
+        document.getElementById('table-search-input').addEventListener('input', filterTable);
+    </script>
+</body>
+</html>
