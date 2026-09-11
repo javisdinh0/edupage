@@ -102,8 +102,39 @@
         .pull-quote {
             font-family: 'Merriweather', serif; font-style: italic; font-size: 1.15rem;
             color: var(--c-navy); border-left: 4px solid var(--c-yellow);
-            padding: 0.3rem 0 0.3rem 1.3rem; margin: 1.8rem 0;
+            padding: 0.3rem 0 0.3rem 1.3rem; margin: 1.8rem 0; line-height: 1.7;
         }
+
+        /* Info card: lịch sử & thông số kỹ thuật */
+        .info-card {
+            background: rgba(255, 255, 255, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 16px; padding: 1.6rem 1.8rem;
+            backdrop-filter: blur(14px) saturate(180%);
+            -webkit-backdrop-filter: blur(14px) saturate(180%);
+            box-shadow: 0 10px 30px rgba(120, 164, 203, 0.15);
+            margin: 1.8rem 0;
+        }
+        .info-card h3 { font-family: 'Merriweather', serif; color: var(--c-navy); font-size: 1.05rem; margin-bottom: 1.1rem; }
+        .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.9rem 1.4rem; }
+        .info-grid dt { font-family: 'Inter', sans-serif; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-dim); margin-bottom: 0.2rem; }
+        .info-grid dd { font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 600; color: var(--text-main); }
+
+        /* "Một số hình ảnh khác" slider */
+        .slider {
+            display: flex; gap: 0.8rem; overflow-x: auto; margin: 1.6rem -0.2rem;
+            padding: 0.2rem 0.2rem 1rem; scroll-snap-type: x proximity;
+            -webkit-overflow-scrolling: touch;
+        }
+        .slider img {
+            flex: 0 0 auto; width: 190px; height: 140px; object-fit: cover;
+            border-radius: 12px; scroll-snap-align: start;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 8px 20px rgba(120, 164, 203, 0.18);
+        }
+        .slider::-webkit-scrollbar { height: 8px; }
+        .slider::-webkit-scrollbar-thumb { background: var(--c-blue-2); border-radius: 999px; }
+        .slider::-webkit-scrollbar-track { background: transparent; }
 
         .gallery {
             display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.9rem;
@@ -136,8 +167,8 @@
         }
         .back-cta svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-        .cover img, .gallery img { cursor: zoom-in; transition: filter 0.2s ease; }
-        .cover img:hover, .gallery img:hover { filter: brightness(0.94); }
+        .cover img, .gallery img, .slider img { cursor: zoom-in; transition: filter 0.2s ease; }
+        .cover img:hover, .gallery img:hover, .slider img:hover { filter: brightness(0.94); }
 
         /* Lightbox */
         .lightbox {
@@ -173,6 +204,7 @@
             .gallery { grid-template-columns: 1fr; }
             .gallery .wide { grid-column: span 1; }
             .gallery img, .gallery .wide img { height: 220px; }
+            .info-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -203,7 +235,22 @@
         <div class="art-body">
             <p>Sáng ngày 10/09/2026, trong tiết trời Tây Bắc mờ sương sau cơn mưa, đoàn học sinh khối 10 Trường THCS-THPT Newton — trong đó có tập thể lớp <strong>10T0</strong> — đã có một chuyến ngoại khoá đáng nhớ tới <strong>Nhà máy Thuỷ điện Hoà Bình</strong>, một trong những công trình thuỷ điện lớn nhất Đông Nam Á trên dòng sông Đà.</p>
 
-            <p>Không chỉ là một chuyến tham quan, đây là dịp để các bạn học sinh được "chạm" vào những kiến thức Vật lý, Địa lý và Lịch sử đã học trên lớp: từ nguyên lý biến đổi thuỷ năng thành điện năng, vai trò điều tiết lũ cho vùng đồng bằng sông Hồng, cho đến câu chuyện về những con người đã "ăn cơm Đông Âu, ở nhà Việt Nam" làm nên công trình thế kỷ.</p>
+            <p>Không chỉ là một chuyến tham quan, đây là dịp để các bạn học sinh được "chạm" vào những kiến thức Vật lý, Địa lý và Lịch sử đã học trên lớp: từ nguyên lý biến đổi thuỷ năng thành điện năng, vai trò điều tiết lũ cho vùng đồng bằng sông Hồng, cho đến câu chuyện về hàng vạn cán bộ, kỹ sư, công nhân Việt Nam và chuyên gia Liên Xô đã "ăn gió nằm sương" trên công trường suốt 15 năm để làm nên công trình thế kỷ.</p>
+
+            <div class="info-card">
+                <h3>Đôi nét về công trình</h3>
+                <dl class="info-grid">
+                    <div><dt>Khởi công</dt><dd>06/11/1979</dd></div>
+                    <div><dt>Khánh thành</dt><dd>20/12/1994</dd></div>
+                    <div><dt>Công suất thiết kế</dt><dd>1.920 MW (8 tổ máy × 240 MW)</dd></div>
+                    <div><dt>Sản lượng điện/năm</dt><dd>~8,16 tỷ kWh</dd></div>
+                    <div><dt>Chiều dài đập chính</dt><dd>734 m</dd></div>
+                    <div><dt>Chiều cao đập</dt><dd>128 m</dd></div>
+                    <div><dt>Dung tích hồ chứa</dt><dd>9,8 tỷ m³</dd></div>
+                    <div><dt>Dòng sông</dt><dd>Sông Đà</dd></div>
+                </dl>
+                <p style="margin-top: 1.1rem; font-family: 'Inter', sans-serif; font-size: 0.88rem; color: var(--text-dim); line-height: 1.6;">Ngoài phát điện, hồ chứa Hoà Bình còn giữ vai trò cắt lũ, điều tiết nước cho vùng đồng bằng sông Hồng — trong đó có Thủ đô Hà Nội — và cấp nước tưới tiêu, đẩy mặn cho hạ du vào mùa khô. Từ 2021, dự án mở rộng bổ sung 2 tổ máy (480 MW) đang nâng tổng công suất nhà máy lên 2.400 MW.</p>
+            </div>
 
             <h2>Hành trình một ngày</h2>
             <p>Đoàn xe khởi hành từ sáng sớm, đưa các bạn học sinh vượt hơn 70km từ Hà Nội lên thành phố Hoà Bình (nay thuộc tỉnh Phú Thọ sau sáp nhập địa giới hành chính). Điểm dừng chân đầu tiên là khu vực đập chính — nơi dòng chữ <strong>"THUỶ ĐIỆN HOÀ BÌNH"</strong> nổi bật trên thân đập đá đồ sộ, phía sau là hồ chứa nước mênh mông giữa núi rừng Tây Bắc.</p>
@@ -236,10 +283,12 @@
                 </figure>
             </div>
 
-            <p class="pull-quote">"Đi một ngày đàng, học một sàng khôn — những kiến thức về năng lượng sạch, về ý chí con người chinh phục dòng sông Đà sẽ đọng lại lâu hơn bất kỳ trang sách nào."</p>
-
             <h2>Tri ân và gắn kết</h2>
-            <p>Một điểm dừng chân không thể thiếu trong hành trình là <strong>Tượng đài Bác Hồ</strong> trên đồi Ông Tượng, nơi toàn thể học sinh khối 10 cùng các thầy cô đã dâng hương, nghe kể lại câu chuyện "không có việc gì khó" gắn liền với những năm tháng ngăn sông, đắp đập. Đứng dưới chân tượng đài, cả trăm học sinh trong màu áo đồng phục xanh navy đã cùng nhau ghi lại một bức ảnh tập thể đáng nhớ.</p>
+            <p>Một điểm dừng chân không thể thiếu trong hành trình là <strong>Tượng đài Bác Hồ</strong> trên đồi Ông Tượng, nơi toàn thể học sinh khối 10 cùng các thầy cô đã dâng hương và cùng nhau đọc lại bốn câu thơ Bác dặn được khắc trên bệ tượng — lời nhắc gắn liền với ý chí của biết bao thế hệ đã ngăn sông, đắp đập:</p>
+
+            <p class="pull-quote">"Không có việc gì khó,<br>Chỉ sợ lòng không bền,<br>Đào núi và lấp biển,<br>Quyết chí ắt làm nên."<br>— Hồ Chí Minh</p>
+
+            <p>Đứng dưới chân tượng đài, cả trăm học sinh trong màu áo đồng phục xanh navy đã cùng nhau ghi lại một bức ảnh tập thể đáng nhớ.</p>
 
             <figure class="cover" style="margin: 1.8rem 0;">
                 <img src="./anh/05-tap-the-tuong-dai-bac-ho.jpg" alt="Toàn thể học sinh khối 10 chụp ảnh tập thể dưới chân Tượng đài Bác Hồ tại Hoà Bình">
@@ -259,6 +308,25 @@
             </div>
 
             <p>Chuyến ngoại khoá khép lại vào cuối buổi chiều khi đoàn xe trở về Hà Nội an toàn. Đây là một trong những hoạt động trải nghiệm thực tế nằm trong kế hoạch giáo dục ngoài giờ lên lớp của nhà trường trong năm học 2026 – 2027, giúp học sinh không chỉ mở rộng hiểu biết mà còn thêm gắn bó với tập thể lớp, tập thể khối.</p>
+
+            <h2>Một số hình ảnh khác</h2>
+            <div class="slider">
+                <img src="./anh/khac/khac-01.jpg" alt="Khoảnh khắc khác trong chuyến ngoại khoá Thuỷ điện Hoà Bình 1">
+                <img src="./anh/khac/khac-02.jpg" alt="Khoảnh khắc khác trong chuyến ngoại khoá Thuỷ điện Hoà Bình 2">
+                <img src="./anh/khac/khac-03.jpg" alt="Khoảnh khắc khác trong chuyến ngoại khoá Thuỷ điện Hoà Bình 3">
+                <img src="./anh/khac/khac-04.jpg" alt="Khoảnh khắc khác trong chuyến ngoại khoá Thuỷ điện Hoà Bình 4">
+                <img src="./anh/khac/khac-05.jpg" alt="Khoảnh khắc khác trong chuyến ngoại khoá Thuỷ điện Hoà Bình 5">
+                <img src="./anh/khac/khac-06.jpg" alt="Khoảnh khắc khác trong chuyến ngoại khoá Thuỷ điện Hoà Bình 6">
+                <img src="./anh/khac/khac-07.jpg" alt="Khoảnh khắc khác trong chuyến ngoại khoá Thuỷ điện Hoà Bình 7">
+                <img src="./anh/khac/khac-08.jpg" alt="Khoảnh khắc khác trong chuyến ngoại khoá Thuỷ điện Hoà Bình 8">
+                <img src="./anh/khac/khac-09.jpg" alt="Khoảnh khắc khác trong chuyến ngoại khoá Thuỷ điện Hoà Bình 9">
+                <img src="./anh/khac/khac-10.jpg" alt="Khoảnh khắc khác trong chuyến ngoại khoá Thuỷ điện Hoà Bình 10">
+                <img src="./anh/khac/khac-11.jpg" alt="Khoảnh khắc khác trong chuyến ngoại khoá Thuỷ điện Hoà Bình 11">
+                <img src="./anh/khac/khac-12.jpg" alt="Khoảnh khắc khác trong chuyến ngoại khoá Thuỷ điện Hoà Bình 12">
+                <img src="./anh/khac/khac-13.jpg" alt="Khoảnh khắc khác trong chuyến ngoại khoá Thuỷ điện Hoà Bình 13">
+                <img src="./anh/khac/khac-14.jpg" alt="Khoảnh khắc khác trong chuyến ngoại khoá Thuỷ điện Hoà Bình 14">
+                <img src="./anh/khac/khac-15.jpg" alt="Khoảnh khắc khác trong chuyến ngoại khoá Thuỷ điện Hoà Bình 15">
+            </div>
 
             <div class="tag-list">
                 <a href="../../#tin-tuc">#TinTức</a>
@@ -305,7 +373,7 @@
             document.body.style.overflow = '';
         }
 
-        document.querySelectorAll('.cover img, .gallery img').forEach(img => {
+        document.querySelectorAll('.cover img, .gallery img, .slider img').forEach(img => {
             img.addEventListener('click', () => openLightbox(img));
         });
         document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
