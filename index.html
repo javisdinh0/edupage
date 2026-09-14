@@ -5,8 +5,8 @@
     <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1234924381658348" crossorigin="anonymous"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Không gian dạy và học — THCS-THPT Newton</title>
-    <meta name="description" content="Không gian dạy và học lớp 10T0 — THCS-THPT Newton: tin tức, thông báo và cổng đăng nhập dành cho giáo viên.">
+    <title>Không gian dạy và học</title>
+    <meta name="description" content="Không gian dạy và học lớp 10T0: tin tức, thông báo và cổng đăng nhập dành cho giáo viên.">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -97,7 +97,65 @@
             .nav-menu a { padding: 0.8rem 1rem; }
         }
 
-        .container { max-width: 1080px; width: 100%; margin: 0 auto; padding: 2.6rem 1.25rem 2rem; }
+        .container { max-width: 1080px; width: 100%; margin: 0 auto; padding: 2.6rem 1.25rem 2rem; scroll-margin-top: 64px; }
+
+        /* Welcome hero — full-screen, scroll down to reach news */
+        .welcome {
+            min-height: calc(100svh - 64px);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; position: relative; overflow: hidden;
+            padding: 3rem 1.5rem 6rem;
+            background: linear-gradient(160deg, var(--c-navy) 0%, var(--c-blue-3) 55%, var(--c-blue-2) 100%);
+            color: #fff;
+        }
+        .welcome::before, .welcome::after {
+            content: ''; position: absolute; border-radius: 50%; filter: blur(70px); pointer-events: none;
+        }
+        .welcome::before { width: 340px; height: 340px; background: rgba(249, 232, 162, 0.35); top: -100px; left: -90px; }
+        .welcome::after { width: 400px; height: 400px; background: rgba(180, 225, 235, 0.35); bottom: -120px; right: -80px; }
+        .welcome .logo {
+            width: 68px; height: 68px; margin-bottom: 1.4rem; border-radius: 18px;
+            background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            display: flex; align-items: center; justify-content: center; position: relative;
+        }
+        .welcome .logo svg { width: 36px; height: 36px; stroke: #fff; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+        .welcome .eyebrow-hero {
+            text-transform: uppercase; letter-spacing: 3px; font-family: 'Inter', sans-serif;
+            font-size: 0.8rem; font-weight: 600; color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 1.1rem; position: relative;
+        }
+        .welcome h1 {
+            font-family: 'Merriweather', serif; font-weight: 700; color: #fff;
+            font-size: clamp(2.3rem, 6vw, 4rem); line-height: 1.2; margin-bottom: 1.2rem;
+            max-width: 16ch; position: relative;
+        }
+        .welcome p.tagline {
+            font-family: 'Lora', serif; font-size: 1.05rem; line-height: 1.75;
+            color: rgba(255, 255, 255, 0.85); max-width: 520px; margin: 0 auto 2.2rem; position: relative;
+        }
+        .welcome .cta-row { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; position: relative; }
+        .welcome .btn-hero-primary, .welcome .btn-hero-ghost {
+            font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.95rem;
+            padding: 0.85rem 1.8rem; border-radius: 999px; text-decoration: none;
+            transition: transform 0.2s ease, background-color 0.2s ease;
+        }
+        .welcome .btn-hero-primary { background: var(--c-yellow); color: var(--text-main); }
+        .welcome .btn-hero-primary:hover { transform: translateY(-2px); }
+        .welcome .btn-hero-ghost {
+            color: #fff; border: 1.5px solid rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+        }
+        .welcome .btn-hero-ghost:hover { background: rgba(255, 255, 255, 0.15); }
+
+        .scroll-cue {
+            position: absolute; bottom: 1.8rem; left: 50%; transform: translateX(-50%);
+            display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
+            color: rgba(255, 255, 255, 0.75); font-family: 'Inter', sans-serif; font-size: 0.75rem;
+            text-decoration: none;
+        }
+        .scroll-cue svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; animation: bounce 1.8s ease-in-out infinite; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
 
         .eyebrow {
             font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.85rem;
@@ -260,6 +318,23 @@
         </ul>
     </nav>
 
+    <header class="welcome">
+        <div class="logo">
+            <svg viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
+        </div>
+        <div class="eyebrow-hero">Lớp 10T0</div>
+        <h1>Không gian dạy và học</h1>
+        <p class="tagline">Nơi tin tức, thông báo và các công cụ của lớp luôn trong tầm tay — dành cho học sinh, phụ huynh và thầy cô.</p>
+        <div class="cta-row">
+            <a class="btn-hero-primary" href="#tin-tuc">Xem tin tức</a>
+            <a class="btn-hero-ghost" href="./taikhoan/">Đăng nhập</a>
+        </div>
+        <a class="scroll-cue" href="#tin-tuc">
+            Cuộn xuống
+            <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </a>
+    </header>
+
     <div class="container" id="tin-tuc">
         <div class="eyebrow">Tin tức &amp; thông báo</div>
 
@@ -268,7 +343,7 @@
                 <span class="tile-icon"><svg viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg></span>
                 <div>
                     <h1>Không gian dạy và học</h1>
-                    <p>Nơi cập nhật tin tức, thông báo và kết nối Gia đình — Nhà trường cho lớp 10T0, THCS-THPT Newton.</p>
+                    <p>Nơi cập nhật tin tức, thông báo và kết nối Gia đình — Nhà trường cho lớp 10T0.</p>
                 </div>
                 <a class="tile-cta" href="./taikhoan/">Đăng nhập <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></a>
             </div>
