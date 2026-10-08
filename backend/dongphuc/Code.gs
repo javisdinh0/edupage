@@ -80,8 +80,8 @@ function doPost(e) {
       }
     }
     sh.getRange(target, 1, 1, row.length).setValues([row]);
-    var mailed = sendReceipt_(d);
-    return json_({ status: 'success', updated: target <= last, mailed: mailed });
+    var mailErr = sendReceipt_(d); // '' = gửi OK, ngược lại là thông báo lỗi
+    return json_({ status: 'success', updated: target <= last, mailed: mailErr === '', mailError: mailErr });
   } catch (err) {
     return json_({ status: 'error', message: String(err) });
   } finally {
@@ -92,7 +92,7 @@ function doPost(e) {
 /**
  * Gửi email biên nhận (ảnh PNG đính kèm) cho người nhận nội bộ.
  * Người nhận: Script property NOTIFY_EMAIL; bỏ trống = chính tài khoản chạy script.
- * Lỗi gửi mail KHÔNG làm hỏng việc ghi Sheet.
+ * Lỗi gửi mail KHÔNG làm hỏng việc ghi Sheet. Trả về '' nếu OK, ngược lại trả thông báo lỗi.
  */
 function sendReceipt_(d) {
   try {
@@ -112,8 +112,18 @@ function sendReceipt_(d) {
       '\nThời gian: ' + (d.submittedAt || '') +
       '\n\n' + summary + (d.note ? '\n\nGhi chú: ' + d.note : '') + '\n\n(Phiếu biên nhận đính kèm.)';
     MailApp.sendEmail(to, '[Đồng phục 10T0] ' + d.fullName + ' đã đăng ký', body, opts);
-    return true;
+    return '';
   } catch (err) {
-    return false;
+    return String(err);
   }
+}
+
+/** Chạy tay trong editor để kiểm tra quyền + gửi thử 1 email (xem kết quả ở Nhật ký thực thi). */
+function testMail() {
+  var err = sendReceipt_({
+    fullName: 'TEST EMAIL', email: 'test@example.com', class: '10T0', gender: 'Nữ',
+    height: '160', weight: '52', submittedAt: new Date().toString(),
+    vest_qty: '1', note: 'Email kiểm tra từ testMail()'
+  });
+  Logger.log(err === '' ? 'Đã gửi mail OK' : 'LỖI: ' + err);
 }
