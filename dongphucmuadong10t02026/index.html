@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký đồng phục mùa đông - Lớp 10T0</title>
+        <link rel="stylesheet" href="style.css?v=4">
+</head>
+<body>
+    <div class="background-elements">
+        <div class="circle circle-1"></div>
+        <div class="circle circle-2"></div>
+        <div class="circle circle-3"></div>
+    </div>
+
+    <div class="container">
+        <header class="form-header">
+            <h1>ĐĂNG KÝ ĐỒNG PHỤC MÙA ĐÔNG</h1>
+            <h2>LỚP 10T0 NĂM HỌC 2026-2027</h2>
+
+            <div class="notice-box">
+                <h3 class="notice-title">🔔 LƯU Ý DÀNH CHO PHHS:</h3>
+                <ol class="notice-list">
+                    <li><strong>Các loại đồng phục mùa đông:</strong>
+                        <p>Áo len dài tay, áo gile len, áo gile (vải), bộ nỉ và áo vest.</p>
+                    </li>
+                    <li><strong>Áo vest (bắt buộc, may đo):</strong>
+                        <p>Mỗi học sinh thường đăng ký 1 áo vest. PHHS chỉ cần chọn số lượng, không cần chọn size — nhà may sẽ đến trường đo trực tiếp.</p>
+                    </li>
+                    <li><strong>Áo len dài tay / áo gile len:</strong>
+                        <p>PHHS đăng ký nhỏ đi 1 size so với các loại áo đồng phục khác.</p>
+                    </li>
+                    <li><strong>Điều chỉnh thông tin đăng ký:</strong>
+                        <p>Trong thời gian chưa hết hạn đăng ký, nếu có thay đổi, PHHS chỉ cần đăng ký lại bằng cùng email và họ tên, hệ thống sẽ ghi nhận bản mới nhất.</p>
+                    </li>
+                    <li><strong>Huỷ đăng ký:</strong>
+                        <p>PHHS vui lòng thông báo với GVCN.</p>
+                    </li>
+                </ol>
+            </div>
+        </header>
+
+        <form id="registrationForm" novalidate>
+            <section class="form-section glass-panel">
+                <h3>1. Thông tin học sinh</h3>
+
+                <div class="form-group">
+                    <label for="email">Email <span class="required">*</span></label>
+                    <input type="email" id="email" name="email" required placeholder="Nhập địa chỉ email của PHHS">
+                    <span class="error-message">Vui lòng nhập địa chỉ email hợp lệ.</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="fullName">Họ tên học sinh <span class="required">*</span></label>
+                    <input type="text" id="fullName" name="fullName" required placeholder="Ví dụ: Nguyễn Văn A">
+                    <span class="error-message">Vui lòng nhập họ tên học sinh.</span>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group half-width">
+                        <label for="class">Lớp <span class="required">*</span></label>
+                        <input type="text" id="class" name="class" required value="10T0" readonly>
+                    </div>
+                    <div class="form-group half-width">
+                        <label for="phone">Số điện thoại PHHS</label>
+                        <input type="tel" id="phone" name="phone" placeholder="Không bắt buộc">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Giới tính <span class="required">*</span></label>
+                    <div class="radio-group">
+                        <label class="radio-label"><input type="radio" name="gender" value="Nam" required><span class="radio-custom"></span>Nam</label>
+                        <label class="radio-label"><input type="radio" name="gender" value="Nữ" required><span class="radio-custom"></span>Nữ</label>
+                    </div>
+                    <span class="error-message">Vui lòng chọn giới tính.</span>
+                </div>
+            </section>
+
+            <section class="form-section glass-panel">
+                <h3>2. Đăng ký đồng phục mùa đông</h3>
+                <p class="section-desc">Chọn "Không" nếu không đăng ký. Bấm vào ảnh để xem rõ mẫu.</p>
+
+                <div class="helper-links">
+                    <button type="button" class="helper-link" onclick="openModal('modal-hw')">Bảng chiều cao – cân nặng</button>
+                    <button type="button" class="helper-link" onclick="openModal('modal-size-ao')">Bảng size áo len / gile</button>
+                    <button type="button" class="helper-link" onclick="openModal('modal-size-ni')">Bảng size bộ nỉ</button>
+                </div>
+
+                <div class="size-calculator">
+                    <h4>Công cụ gợi ý size</h4>
+                    <div class="calc-inputs">
+                        <div class="calc-group">
+                            <label>Chiều cao (cm)</label>
+                            <input type="number" id="calcHeight" placeholder="Vd: 160">
+                        </div>
+                        <div class="calc-group">
+                            <label>Cân nặng (kg)</label>
+                            <input type="number" id="calcWeight" placeholder="Vd: 55">
+                        </div>
+                    </div>
+                    <div class="calc-result" id="calcResult" style="display:none;flex-direction:column;gap:10px;align-items:center">
+                        <div>Size đề nghị: <span id="suggestedSizeDisplay"></span></div>
+                        <p class="field-hint" style="margin:0">Áo len / gile len sẽ tự giảm 1 size so với gợi ý.</p>
+                        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+                            <button type="button" class="btn-apply-size" id="btnApplySize" style="margin:0">Áp dụng</button>
+                            <button type="button" class="btn-apply-size" id="btnApplySizeAlt" style="display:none;margin:0"></button>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:1rem;padding-top:1rem;border-top:1px dashed #d1d5db">
+                        <label for="manualSize" style="font-size:.9rem">Hoặc tự chọn size:</label>
+                        <select id="manualSize" style="width:auto"><option value="">Chọn size</option></select>
+                        <button type="button" class="btn-apply-size" id="btnApplyManual" style="margin:0">Áp dụng</button>
+                    </div>
+                    <p class="error-message" id="calcError" style="position:relative;margin-top:5px">Nhập cả chiều cao và cân nặng để xem gợi ý.</p>
+                </div>
+
+                <div id="items"></div>
+            </section>
+
+            <section class="form-section glass-panel">
+                <h3>3. Ghi chú</h3>
+                <div class="form-group mb-0">
+                    <textarea id="note" name="note" rows="3" placeholder="Ghi chú thêm cho GVCN (không bắt buộc)" style="width:100%;padding:.75rem;border:1px solid #cbd5e1;border-radius:8px;font:inherit"></textarea>
+                </div>
+            </section>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">Gửi đăng ký</button>
+                <button type="button" class="btn-clear" id="btnClear">Xóa mẫu</button>
+            </div>
+        </form>
+
+        <div id="successMessage" class="glass-panel hidden success-modal">
+            <div class="success-icon">✓</div>
+            <h3>Đăng ký thành công!</h3>
+            <p>Thông tin đăng ký đồng phục mùa đông của học sinh đã được ghi nhận.</p>
+            <p class="field-hint" style="color:#b45309;font-weight:600;font-style:normal">Học sinh cần giữ phiếu này hoặc hình ảnh để nhận đồ. Vui lòng lưu ảnh biên nhận.</p>
+            <img id="receiptImg" alt="Biên nhận đăng ký đồng phục" style="width:100%;border:1px solid #cbd5e1;border-radius:8px;margin:1rem 0">
+            <button type="button" id="btnSaveReceipt" class="btn-submit" style="width:100%;margin-bottom:.75rem">Lưu ảnh biên nhận về điện thoại</button>
+            <p class="field-hint" style="margin:0 0 1rem">Nếu máy không tự lưu, nhấn giữ vào ảnh rồi chọn "Lưu ảnh".</p>
+            <button class="btn-clear" onclick="location.reload()" style="width:100%">Gửi phản hồi khác</button>
+        </div>
+    </div>
+
+    <div id="modal-hw" class="modal-overlay hidden" onclick="closeModal(event, 'modal-hw')">
+        <div class="modal-content">
+            <div class="modal-header"><h3>Bảng chiều cao – cân nặng</h3><button class="btn-close" onclick="closeModalBtn('modal-hw')">×</button></div>
+            <div class="modal-body" style="padding:1.5rem"><div id="hwTable"></div></div>
+        </div>
+    </div>
+    <div id="modal-size-ao"class="modal-overlay hidden" onclick="closeModal(event, 'modal-size-ao')">
+        <div class="modal-content">
+            <div class="modal-header"><h3>Bảng size áo sơ mi / áo len / gile</h3><button class="btn-close" onclick="closeModalBtn('modal-size-ao')">×</button></div>
+            <div class="modal-body" style="padding:1rem">
+                <div id="aoTable"></div>
+                <p class="field-hint">Đơn vị: cm. Áo len dài tay / gile len: đăng ký nhỏ đi 1 size.</p>
+                <button type="button" class="helper-link" onclick="toggleOrig('orig-ao', this)">Xem ảnh gốc để đối chiếu</button>
+                <img id="orig-ao" src="anh/size-ao.png" alt="Bảng size áo (ảnh gốc)" class="hidden" style="width:100%;margin-top:1rem;cursor:zoom-in" onclick="openImg(this)">
+            </div>
+        </div>
+    </div>
+    <div id="modal-size-ni" class="modal-overlay hidden" onclick="closeModal(event, 'modal-size-ni')">
+        <div class="modal-content">
+            <div class="modal-header"><h3>Bảng size bộ nỉ mùa đông</h3><button class="btn-close" onclick="closeModalBtn('modal-size-ni')">×</button></div>
+            <div class="modal-body" style="padding:1rem">
+                <div id="niTable"></div>
+                <p class="field-hint">Đơn vị: cm.</p>
+                <button type="button" class="helper-link" onclick="toggleOrig('orig-ni', this)">Xem ảnh gốc để đối chiếu</button>
+                <img id="orig-ni" src="anh/size-bo-ni.png" alt="Bảng size bộ nỉ (ảnh gốc)" class="hidden" style="width:100%;margin-top:1rem;cursor:zoom-in" onclick="openImg(this)">
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-img" class="modal-overlay hidden" onclick="closeModal(event, 'modal-img')">
+        <div class="modal-content">
+            <div class="modal-header"><h3 id="modalImgTitle">Xem ảnh</h3><button class="btn-close" onclick="closeModalBtn('modal-img')">×</button></div>
+            <div class="modal-body" style="padding:1rem;text-align:center"><img id="modalImg" src="" alt="" style="max-width:100%"></div>
+        </div>
+    </div>
+
+    <script src="script.js?v=7"></script>
+</body>
+</html>
