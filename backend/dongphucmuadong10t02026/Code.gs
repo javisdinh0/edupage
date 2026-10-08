@@ -6,7 +6,8 @@
  *
  * CÀI ĐẶT (làm 1 lần) — xem docs/dongphucmuadong10t02026/DEPLOY.md:
  *   1. Tạo Google Sheet mới -> Extensions -> Apps Script -> dán file này.
- *   2. (Tuỳ chọn) Script properties: SHEET_NAME = tên sheet ghi dữ liệu (mặc định "DangKy").
+ *   2. (Tuỳ chọn) Script properties: SHEET_NAME = tên sheet ghi dữ liệu (mặc định "DangKy"),
+ *      DRIVE_FOLDER_ID = ID thư mục Drive lưu ảnh biên nhận (bỏ trống = tự tạo thư mục mới).
  *   3. Deploy -> New deployment -> Web app: Execute as Me, Who has access: Anyone.
  *   4. Copy URL /exec dán vào GAS_WEB_APP_URL trong dongphucmuadong10t02026/script.js.
  */
@@ -80,8 +81,8 @@ function doPost(e) {
       }
     }
     sh.getRange(target, 1, 1, row.length).setValues([row]);
-    var mailErr = sendReceipt_(d); // '' = gửi OK, ngược lại là thông báo lỗi
-    return json_({ status: 'success', updated: target <= last, mailed: mailErr === '', mailError: mailErr });
+    var saveErr = saveReceipt_(d); // '' = lưu OK, ngược lại là thông báo lỗi
+    return json_({ status: 'success', updated: target <= last, saved: saveErr === '', saveError: saveErr });
   } catch (err) {
     return json_({ status: 'error', message: String(err) });
   } finally {
@@ -90,44 +91,51 @@ function doPost(e) {
 }
 
 /**
- * Gửi email biên nhận (ảnh PNG đính kèm) cho người nhận nội bộ.
- * Người nhận: Script property NOTIFY_EMAIL (khuyên dùng); bỏ trống = chủ sở hữu Google Sheet.
- * Lỗi gửi mail KHÔNG làm hỏng việc ghi Sheet. Trả về '' nếu OK, ngược lại trả thông báo lỗi.
+ * Lưu ảnh biên nhận (PNG) vào thư mục Google Drive. Tên file = tên học sinh.
+ * Thư mục: Script property DRIVE_FOLDER_ID; chưa có thì tự tạo thư mục
+ * "Biên nhận đồng phục 10T0" ở Drive gốc rồi ghi lại ID vào property đó.
+ * Đăng ký lại (cùng email + họ tên) -> ghi đè file cũ; trùng tên học sinh khác email -> thêm (2), (3)...
+ * Lỗi lưu ảnh KHÔNG làm hỏng việc ghi Sheet. Trả về '' nếu OK, ngược lại trả thông báo lỗi.
  */
-function sendReceipt_(d) {
+function saveReceipt_(d) {
   try {
-    var to = PropertiesService.getScriptProperties().getProperty('NOTIFY_EMAIL');
-    if (!to) {
-      try { to = SpreadsheetApp.getActiveSpreadsheet().getOwner().getEmail(); } catch (e1) {}
-    }
-    if (!to) return 'Chưa cấu hình NOTIFY_EMAIL (Cài đặt dự án -> Thuộc tính tập lệnh).';
     var m = /^data:image\/png;base64,(.+)$/.exec(d.receipt || '');
-    var opts = { name: 'Đăng ký đồng phục 10T0' };
-    var summary = ITEMS.filter(function (it) { return Number(d[it.key + '_qty']) > 0; }).map(function (it) {
-      return '- ' + it.name + ': ' + d[it.key + '_qty'] + (it.size ? ' (Size ' + d[it.key + '_size'] + ')' : ' (may đo)');
-    }).join('\n') || 'Không đăng ký';
-    if (m) {
-      var file = 'Bien_nhan_' + String(d.fullName).replace(/[^\w]+/g, '_') + '.png';
-      opts.attachments = [Utilities.newBlob(Utilities.base64Decode(m[1]), 'image/png', file)];
+    if (!m) return 'Không có ảnh biên nhận trong dữ liệu gửi lên.';
+
+    var props = PropertiesService.getScriptProperties();
+    var folder;
+    var id = props.getProperty('DRIVE_FOLDER_ID');
+    if (id) {
+      folder = DriveApp.getFolderById(id);
+    } else {
+      folder = DriveApp.createFolder('Biên nhận đồng phục 10T0');
+      props.setProperty('DRIVE_FOLDER_ID', folder.getId());
     }
-    var body = 'Học sinh: ' + d.fullName + ' - Lớp ' + (d.class || '') + ' - ' + (d.gender || '') +
-      '\nEmail đăng ký: ' + d.email +
-      '\nChiều cao / cân nặng: ' + (d.height || '?') + ' cm / ' + (d.weight || '?') + ' kg' +
-      '\nThời gian: ' + (d.submittedAt || '') +
-      '\n\n' + summary + (d.note ? '\n\nGhi chú: ' + d.note : '') + '\n\n(Phiếu biên nhận đính kèm.)';
-    MailApp.sendEmail(to, '[Đồng phục 10T0] ' + d.fullName + ' đã đăng ký', body, opts);
+
+    var base = String(d.fullName).replace(/[\\/:*?"<>|]+/g, ' ').replace(/\s+/g, ' ').trim() || 'hoc-sinh';
+    var email = norm_(d.email);
+    var blob = Utilities.newBlob(Utilities.base64Decode(m[1]), 'image/png');
+
+    // Cùng email -> ghi đè (xoá file cũ, tạo mới); khác email trùng tên -> thêm (2), (3)...
+    var name = base + '.png';
+    for (var k = 2; k < 200; k++) {
+      var it = folder.getFilesByName(name);
+      if (!it.hasNext()) break;
+      var f = it.next();
+      if (f.getDescription() === email) { f.setTrashed(true); break; }
+      name = base + ' (' + k + ').png';
+    }
+    folder.createFile(blob.setName(name)).setDescription(email);
     return '';
   } catch (err) {
     return String(err);
   }
 }
 
-/** Chạy tay trong editor để kiểm tra quyền + gửi thử 1 email (xem kết quả ở Nhật ký thực thi). */
-function testMail() {
-  var err = sendReceipt_({
-    fullName: 'TEST EMAIL', email: 'test@example.com', class: '10T0', gender: 'Nữ',
-    height: '160', weight: '52', submittedAt: new Date().toString(),
-    vest_qty: '1', note: 'Email kiểm tra từ testMail()'
-  });
-  Logger.log(err === '' ? 'Đã gửi mail OK' : 'LỖI: ' + err);
+/** Chạy tay trong editor để cấp quyền Drive + kiểm tra lưu ảnh (xem Nhật ký thực thi). */
+function testDrive() {
+  // PNG 1x1 trong suốt
+  var png = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
+  var err = saveReceipt_({ fullName: 'TEST LƯU ẢNH', email: 'test@example.com', receipt: png });
+  Logger.log(err === '' ? 'Đã lưu ảnh OK vào thư mục Drive' : 'LỖI: ' + err);
 }

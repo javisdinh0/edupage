@@ -13,10 +13,21 @@ Không hardcode ID Sheet: script gắn trực tiếp vào Sheet (`getActiveSprea
 - Áo vest chỉ có cột số lượng (nhà may đo trực tiếp), các món khác có thêm cột size.
 - Áo len / gile len: PHHS đăng ký nhỏ hơn 1 size (ghi chú trên form).
 
-## Email biên nhận
-Mỗi lượt đăng ký, script gửi 1 email kèm **ảnh biên nhận (PNG)** tới `NOTIFY_EMAIL`
-(Script properties — nên đặt `NOTIFY_EMAIL` rõ ràng); bỏ trống = chủ sở hữu Sheet. Lỗi gửi mail không làm mất dòng ghi vào Sheet
-(phản hồi có `mailed: false`). Mỗi lần đăng ký lại cũng gửi 1 email mới.
+## Lưu ảnh biên nhận vào Google Drive
+Mỗi lượt đăng ký, script lưu **ảnh biên nhận (PNG)** vào một thư mục Drive; **tên file = tên học sinh** (ví dụ `Nguyễn Minh Anh.png`).
 
-Sau khi cập nhật `Code.gs` có thêm quyền gửi mail: **Deploy → Manage deployments → ✏️ → New version → Deploy**,
-và **cấp quyền lại** khi Google hỏi (thêm quyền "Gửi email thay mặt bạn"). Gmail giới hạn ~100 email/ngày (tài khoản thường).
+- Thư mục: Script property `DRIVE_FOLDER_ID`. Bỏ trống → script tự tạo thư mục "Biên nhận đồng phục 10T0" ở Drive gốc và ghi lại ID.
+  Muốn dùng thư mục có sẵn: lấy ID trong URL thư mục (`drive.google.com/drive/folders/<ID>`) và đặt vào property này.
+- Đăng ký lại (cùng email + họ tên) → thay file cũ bằng bản mới. Học sinh khác trùng tên → `Tên (2).png`, `Tên (3).png`…
+- Lỗi lưu ảnh không làm mất dòng trong Sheet (phản hồi có `saved: false` và `saveError`).
+
+### Cấp quyền (làm 1 lần)
+1. **Cài đặt dự án** → bật "Hiển thị tệp kê khai appsscript.json" → mở `appsscript.json`, đặt:
+   ```json
+   "oauthScopes": [
+     "https://www.googleapis.com/auth/spreadsheets",
+     "https://www.googleapis.com/auth/drive"
+   ]
+   ```
+2. Chọn hàm `testDrive` → **Chạy** → cấp quyền khi Google hỏi (Xem lại quyền → Nâng cao → Đi tới … → Cho phép). Nhật ký phải hiện `Đã lưu ảnh OK`.
+3. **Triển khai → Quản lý các bản triển khai → ✏️ → Phiên bản mới → Triển khai.**
