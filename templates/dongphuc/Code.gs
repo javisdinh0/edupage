@@ -1,5 +1,5 @@
 /**
- * Đăng ký đồng phục mùa đông 10T0 (2026-2027) — Google Apps Script (BACKEND)
+ * Đăng ký đồng phục mùa đông {{LOP}} ({{NAM_HOC}}) — Google Apps Script (BACKEND)
  * ------------------------------------------------------------------
  * File này được SINH TỰ ĐỘNG từ templates/dongphuc/Code.gs (tools/new-class.mjs) — đừng sửa tay
  * trong thư mục lớp; sửa template rồi chạy tools/sync-classes.mjs.
@@ -9,10 +9,10 @@
  *
  * Script properties (tuỳ chọn):
  *   SHEET_NAME      = tên tab ghi dữ liệu (mặc định "DangKy")
- *   DRIVE_FOLDER_ID = ID thư mục Drive lưu ảnh (bỏ trống = tự tạo "Biên nhận đồng phục 10T0")
+ *   DRIVE_FOLDER_ID = ID thư mục Drive lưu ảnh (bỏ trống = tự tạo "Biên nhận đồng phục {{LOP}}")
  */
 
-var LOP = '10T0';
+var LOP = '{{LOP}}';
 
 var ITEMS = [
   { key: 'ao_len_dai', name: 'Áo len dài tay', size: true },
