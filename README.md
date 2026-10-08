@@ -14,6 +14,7 @@ Tách ra từ repo `ividlab` (trước đây phục vụ tại `ividlab.com/dinh
 | `admin/` | Bảng điều khiển admin khảo sát |
 | `congcuthongkediem/` | Công cụ thống kê điểm |
 | `khaosatchiase10t0/` | Trang khảo sát chia sẻ 10T0 |
+| `dongphuc/` | Form đăng ký đồng phục mùa đông (áo len, gile, bộ nỉ, vest) — backend `backend/dongphuc/`, hướng dẫn `docs/dongphuc/DEPLOY.md` |
 | `backend/` | `Code.gs` — dán tay vào Google Apps Script editor (không chạy trong repo) |
 | `docs/` | Hướng dẫn deploy backend + thiết lập tài khoản dùng chung (SSO) |
 
