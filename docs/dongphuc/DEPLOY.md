@@ -15,7 +15,7 @@ Không hardcode ID Sheet: script gắn trực tiếp vào Sheet (`getActiveSprea
 
 ## Email biên nhận
 Mỗi lượt đăng ký, script gửi 1 email kèm **ảnh biên nhận (PNG)** tới `NOTIFY_EMAIL`
-(Script properties); bỏ trống = chính tài khoản chạy script. Lỗi gửi mail không làm mất dòng ghi vào Sheet
+(Script properties — nên đặt `NOTIFY_EMAIL` rõ ràng); bỏ trống = chủ sở hữu Sheet. Lỗi gửi mail không làm mất dòng ghi vào Sheet
 (phản hồi có `mailed: false`). Mỗi lần đăng ký lại cũng gửi 1 email mới.
 
 Sau khi cập nhật `Code.gs` có thêm quyền gửi mail: **Deploy → Manage deployments → ✏️ → New version → Deploy**,

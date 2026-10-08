@@ -91,12 +91,16 @@ function doPost(e) {
 
 /**
  * Gửi email biên nhận (ảnh PNG đính kèm) cho người nhận nội bộ.
- * Người nhận: Script property NOTIFY_EMAIL; bỏ trống = chính tài khoản chạy script.
+ * Người nhận: Script property NOTIFY_EMAIL (khuyên dùng); bỏ trống = chủ sở hữu Google Sheet.
  * Lỗi gửi mail KHÔNG làm hỏng việc ghi Sheet. Trả về '' nếu OK, ngược lại trả thông báo lỗi.
  */
 function sendReceipt_(d) {
   try {
-    var to = PropertiesService.getScriptProperties().getProperty('NOTIFY_EMAIL') || Session.getEffectiveUser().getEmail();
+    var to = PropertiesService.getScriptProperties().getProperty('NOTIFY_EMAIL');
+    if (!to) {
+      try { to = SpreadsheetApp.getActiveSpreadsheet().getOwner().getEmail(); } catch (e1) {}
+    }
+    if (!to) return 'Chưa cấu hình NOTIFY_EMAIL (Cài đặt dự án -> Thuộc tính tập lệnh).';
     var m = /^data:image\/png;base64,(.+)$/.exec(d.receipt || '');
     var opts = { name: 'Đăng ký đồng phục 10T0' };
     var summary = ITEMS.filter(function (it) { return Number(d[it.key + '_qty']) > 0; }).map(function (it) {
