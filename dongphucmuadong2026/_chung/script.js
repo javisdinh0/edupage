@@ -1,15 +1,17 @@
-// Dán URL Web App của Google Apps Script (xem docs/dongphucmuadong10t02026/DEPLOY.md) vào đây sau khi deploy.
-const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyhqeRIeazwnXNpfx_rI42zQ40cvomUMYxFYTKIxgHVaYnKCIx97voJKW4c4APh014iHQ/exec';
+// Cấu hình từng lớp do trang index.html khai báo (window.DONGPHUC = { lop, namHoc, gasUrl, chung }).
+const CFG = window.DONGPHUC || {};
+const CHUNG = CFG.chung || '.';
+const GAS_WEB_APP_URL = CFG.gasUrl || '';
 
 const SIZES = ['Số 5', 'XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL', '6XL', '7XL'];
 
 // size: true = chọn size; false = chỉ chọn số lượng (may đo)
 const ITEMS = [
-    { key: 'ao_len_dai', name: 'Áo len dài tay', unit: 'chiếc', img: 'anh/ao-len-dai.jpg', size: true, table: 'ao', shift: -1, note: 'Đăng ký nhỏ đi 1 size so với các loại áo đồng phục khác.' },
-    { key: 'gile_len', name: 'Áo gile len', unit: 'chiếc', img: 'anh/gile-len.jpg', size: true, table: 'ao', shift: -1, note: 'Đăng ký nhỏ đi 1 size so với các loại áo đồng phục khác.' },
-    { key: 'gile_vai', name: 'Áo gile (vải)', unit: 'chiếc', img: 'anh/gile-vai.jpg', size: true, table: 'ao' },
-    { key: 'bo_ni', name: 'Bộ nỉ mùa đông', unit: 'bộ', img: 'anh/bo-ni.jpg', size: true, table: 'ni' },
-    { key: 'vest', name: 'Áo vest (may đo)', unit: 'chiếc', img: 'anh/vest.jpg', size: false, def: 1, max: 2, note: 'Bắt buộc, mỗi học sinh thường 1 áo. Chỉ chọn số lượng — nhà may sẽ đến đo trực tiếp.' }
+    { key: 'ao_len_dai', name: 'Áo len dài tay', unit: 'chiếc', img: CHUNG + '/anh/ao-len-dai.jpg', size: true, table: 'ao', shift: -1, note: 'Đăng ký nhỏ đi 1 size so với các loại áo đồng phục khác.' },
+    { key: 'gile_len', name: 'Áo gile len', unit: 'chiếc', img: CHUNG + '/anh/gile-len.jpg', size: true, table: 'ao', shift: -1, note: 'Đăng ký nhỏ đi 1 size so với các loại áo đồng phục khác.' },
+    { key: 'gile_vai', name: 'Áo gile (vải)', unit: 'chiếc', img: CHUNG + '/anh/gile-vai.jpg', size: true, table: 'ao' },
+    { key: 'bo_ni', name: 'Bộ nỉ mùa đông', unit: 'bộ', img: CHUNG + '/anh/bo-ni.jpg', size: true, table: 'ni' },
+    { key: 'vest', name: 'Áo vest (may đo)', unit: 'chiếc', img: CHUNG + '/anh/vest.jpg', size: false, def: 1, max: 2, note: 'Bắt buộc, mỗi học sinh thường 1 áo. Chỉ chọn số lượng — nhà may sẽ đến đo trực tiếp.' }
 ];
 
 // ===== Bảng tra (số liệu từ bảng size của nhà cung cấp, đơn vị cm / kg) =====
@@ -106,7 +108,7 @@ function drawReceipt(d, timeStr) {
 
     let y = 70;
     text('BIÊN NHẬN ĐĂNG KÝ ĐỒNG PHỤC MÙA ĐÔNG', W / 2, y, 26, 'bold', '#1e3a5f', 'center'); y += 32;
-    text('Lớp 10T0 — Năm học 2026-2027', W / 2, y, 18, 'normal', '#333', 'center'); y += 28;
+    text('Lớp ' + CFG.lop + ' — Năm học ' + CFG.namHoc, W / 2, y, 18, 'normal', '#333', 'center'); y += 28;
     g.fillStyle = '#fef3c7'; g.fillRect(pad, y, W - 2 * pad, 38);
     text('Học sinh cần giữ phiếu này hoặc hình ảnh để nhận đồ', W / 2, y + 26, 20, 'bold', '#b45309', 'center'); y += 38 + 34;
 
@@ -193,35 +195,55 @@ form.addEventListener('submit', function (e) {
     const d = Object.fromEntries(new FormData(form).entries());
     d.height = calcHeight.value.trim();
     d.weight = calcWeight.value.trim();
-    const timeStr = new Date().toLocaleString('vi-VN', { hour12: false });
-    const receiptCanvas = drawReceipt(d, timeStr);
     ITEMS.forEach(it => {
         if (d[it.key + '_qty'] === 'other') d[it.key + '_qty'] = String(parseInt(d[it.key + '_qty_other'], 10));
         delete d[it.key + '_qty_other'];
     });
+    const timeStr = new Date().toLocaleString('vi-VN', { hour12: false });
+    const receiptCanvas = drawReceipt(d, timeStr);
     if (!ITEMS.some(it => d[it.key + '_qty'] !== '0') && !confirm('Bạn chưa đăng ký món nào. Vẫn gửi?')) return;
-    if (GAS_WEB_APP_URL.includes('YOUR_')) { alert('Chưa cấu hình GAS_WEB_APP_URL trong script.js.'); return; }
+    if (!GAS_WEB_APP_URL) { alert('Trang chưa được cấu hình địa chỉ máy chủ (gasUrl).'); return; }
 
     const btn = form.querySelector('.btn-submit');
     const txt = btn.textContent;
+    const errBox = document.getElementById('submitError');
+    errBox.classList.add('hidden');
     btn.textContent = 'Đang gửi...';
     btn.disabled = true;
-    fetch(GAS_WEB_APP_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(Object.assign({ receipt: receiptCanvas.toDataURL('image/png'), submittedAt: timeStr }, d))
-    }).then(() => {
+    const payload = JSON.stringify(Object.assign({ receipt: receiptCanvas.toDataURL('image/png'), submittedAt: timeStr, lop: CFG.lop }, d));
+
+    // Gửi tối đa 3 lần (đăng ký lặp cùng email + họ tên chỉ ghi đè, không tạo dòng thừa)
+    sendWithRetry(payload, 3).then(res => {
         showReceipt(d, receiptCanvas);
         form.style.display = 'none';
         document.querySelector('.form-header').style.display = 'none';
         document.getElementById('successMessage').classList.remove('hidden');
+        window.scrollTo(0, 0);
     }).catch(err => {
-        alert('Có lỗi khi gửi dữ liệu: ' + err.message);
+        errBox.textContent = 'Chưa gửi được đăng ký: ' + err.message + ' Dữ liệu của bạn vẫn còn trên form — bấm "Gửi đăng ký" để thử lại.';
+        errBox.classList.remove('hidden');
+        errBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
         btn.textContent = txt;
         btn.disabled = false;
     });
 });
+
+async function sendWithRetry(payload, tries) {
+    let last = 'Lỗi không xác định.';
+    for (let i = 1; i <= tries; i++) {
+        try {
+            const r = await fetch(GAS_WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: payload });
+            const j = await r.json();
+            if (j && j.status === 'success') return j;
+            last = (j && j.message) || 'Máy chủ từ chối đăng ký.';
+            if (j && j.permanent) break; // lỗi dữ liệu: thử lại cũng không khác
+        } catch (e) {
+            last = 'Không kết nối được máy chủ (kiểm tra mạng).';
+        }
+        if (i < tries) await new Promise(r => setTimeout(r, 1500 * i));
+    }
+    throw new Error(last);
+}
 
 document.getElementById('btnClear').addEventListener('click', () => {
     if (confirm('Xóa toàn bộ thông tin đã nhập?')) location.reload();

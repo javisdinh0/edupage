@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng ký đồng phục mùa đông - Lớp 10T0</title>
-        <link rel="stylesheet" href="../dongphucmuadong2026/_chung/style.css?v=be5ebb02">
+    <title>Đăng ký đồng phục mùa đông - Lớp {{LOP}}</title>
+        <link rel="stylesheet" href="{{CHUNG}}/style.css?v={{VER}}">
 </head>
 <body>
     <div class="background-elements">
@@ -16,7 +16,7 @@
     <div class="container">
         <header class="form-header">
             <h1>ĐĂNG KÝ ĐỒNG PHỤC MÙA ĐÔNG</h1>
-            <h2>LỚP 10T0 NĂM HỌC 2026-2027</h2>
+            <h2>LỚP {{LOP}} NĂM HỌC {{NAM_HOC}}</h2>
 
             <div class="notice-box">
                 <h3 class="notice-title">🔔 LƯU Ý DÀNH CHO PHHS:</h3>
@@ -59,7 +59,7 @@
                 <div class="form-row">
                     <div class="form-group half-width">
                         <label for="class">Lớp <span class="required">*</span></label>
-                        <input type="text" id="class" name="class" required value="10T0" readonly>
+                        <input type="text" id="class" name="class" required value="{{LOP}}" readonly>
                     </div>
                     <div class="form-group half-width">
                         <label for="phone">Số điện thoại PHHS</label>
@@ -160,7 +160,7 @@
                 <div id="aoTable"></div>
                 <p class="field-hint">Đơn vị: cm. Áo len dài tay / gile len: đăng ký nhỏ đi 1 size.</p>
                 <button type="button" class="helper-link" onclick="toggleOrig('orig-ao', this)">Xem ảnh gốc để đối chiếu</button>
-                <img id="orig-ao" src="../dongphucmuadong2026/_chung/anh/size-ao.png" alt="Bảng size áo (ảnh gốc)" class="hidden" style="width:100%;margin-top:1rem;cursor:zoom-in" onclick="openImg(this)">
+                <img id="orig-ao" src="{{CHUNG}}/anh/size-ao.png" alt="Bảng size áo (ảnh gốc)" class="hidden" style="width:100%;margin-top:1rem;cursor:zoom-in" onclick="openImg(this)">
             </div>
         </div>
     </div>
@@ -171,7 +171,7 @@
                 <div id="niTable"></div>
                 <p class="field-hint">Đơn vị: cm.</p>
                 <button type="button" class="helper-link" onclick="toggleOrig('orig-ni', this)">Xem ảnh gốc để đối chiếu</button>
-                <img id="orig-ni" src="../dongphucmuadong2026/_chung/anh/size-bo-ni.png" alt="Bảng size bộ nỉ (ảnh gốc)" class="hidden" style="width:100%;margin-top:1rem;cursor:zoom-in" onclick="openImg(this)">
+                <img id="orig-ni" src="{{CHUNG}}/anh/size-bo-ni.png" alt="Bảng size bộ nỉ (ảnh gốc)" class="hidden" style="width:100%;margin-top:1rem;cursor:zoom-in" onclick="openImg(this)">
             </div>
         </div>
     </div>
@@ -184,8 +184,8 @@
     </div>
 
     <script>
-        window.DONGPHUC = { lop: '10T0', namHoc: '2026-2027', gasUrl: 'https://script.google.com/macros/s/AKfycbyhqeRIeazwnXNpfx_rI42zQ40cvomUMYxFYTKIxgHVaYnKCIx97voJKW4c4APh014iHQ/exec', chung: '../dongphucmuadong2026/_chung' };
+        window.DONGPHUC = { lop: '{{LOP}}', namHoc: '{{NAM_HOC}}', gasUrl: '{{GAS_URL}}', chung: '{{CHUNG}}' };
     </script>
-    <script src="../dongphucmuadong2026/_chung/script.js?v=be5ebb02"></script>
+    <script src="{{CHUNG}}/script.js?v={{VER}}"></script>
 </body>
 </html>
