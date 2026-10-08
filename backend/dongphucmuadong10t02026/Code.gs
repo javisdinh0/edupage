@@ -1,14 +1,14 @@
 /**
  * Đăng ký đồng phục mùa đông 10T0 — Google Apps Script (BACKEND)
  * ------------------------------------------------------------------
- * Nhận bài đăng ký từ dongphuc/index.html (doPost) và ghi vào Google Sheet.
+ * Nhận bài đăng ký từ dongphucmuadong10t02026/index.html (doPost) và ghi vào Google Sheet.
  * Đăng ký lại (cùng email + họ tên) sẽ GHI ĐÈ dòng cũ — giữ bản mới nhất.
  *
- * CÀI ĐẶT (làm 1 lần) — xem docs/dongphuc/DEPLOY.md:
+ * CÀI ĐẶT (làm 1 lần) — xem docs/dongphucmuadong10t02026/DEPLOY.md:
  *   1. Tạo Google Sheet mới -> Extensions -> Apps Script -> dán file này.
  *   2. (Tuỳ chọn) Script properties: SHEET_NAME = tên sheet ghi dữ liệu (mặc định "DangKy").
  *   3. Deploy -> New deployment -> Web app: Execute as Me, Who has access: Anyone.
- *   4. Copy URL /exec dán vào GAS_WEB_APP_URL trong dongphuc/script.js.
+ *   4. Copy URL /exec dán vào GAS_WEB_APP_URL trong dongphucmuadong10t02026/script.js.
  */
 
 var ITEMS = [

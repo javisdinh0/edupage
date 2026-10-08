@@ -1,4 +1,4 @@
-// Dán URL Web App của Google Apps Script (xem docs/dongphuc/DEPLOY.md) vào đây sau khi deploy.
+// Dán URL Web App của Google Apps Script (xem docs/dongphucmuadong10t02026/DEPLOY.md) vào đây sau khi deploy.
 const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyhqeRIeazwnXNpfx_rI42zQ40cvomUMYxFYTKIxgHVaYnKCIx97voJKW4c4APh014iHQ/exec';
 
 const SIZES = ['Số 5', 'XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL', '6XL', '7XL'];
