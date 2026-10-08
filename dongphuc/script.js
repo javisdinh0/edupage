@@ -145,8 +145,7 @@ function drawReceipt(d, timeStr) {
     return c;
 }
 
-function showReceipt(d, timeStr) {
-    const canvas = drawReceipt(d, timeStr);
+function showReceipt(d, canvas) {
     const img = document.getElementById('receiptImg');
     img.src = canvas.toDataURL('image/png');
     const name = 'Bien_nhan_dong_phuc_' + (d.fullName || 'hoc_sinh').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/gi, 'd').replace(/[^a-zA-Z0-9]+/g, '_') + '.png';
@@ -195,6 +194,7 @@ form.addEventListener('submit', function (e) {
     d.height = calcHeight.value.trim();
     d.weight = calcWeight.value.trim();
     const timeStr = new Date().toLocaleString('vi-VN', { hour12: false });
+    const receiptCanvas = drawReceipt(d, timeStr);
     ITEMS.forEach(it => {
         if (d[it.key + '_qty'] === 'other') d[it.key + '_qty'] = String(parseInt(d[it.key + '_qty_other'], 10));
         delete d[it.key + '_qty_other'];
@@ -210,9 +210,9 @@ form.addEventListener('submit', function (e) {
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(d)
+        body: JSON.stringify(Object.assign({ receipt: receiptCanvas.toDataURL('image/png'), submittedAt: timeStr }, d))
     }).then(() => {
-        showReceipt(d, timeStr);
+        showReceipt(d, receiptCanvas);
         form.style.display = 'none';
         document.querySelector('.form-header').style.display = 'none';
         document.getElementById('successMessage').classList.remove('hidden');

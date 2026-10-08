@@ -12,3 +12,11 @@ Không hardcode ID Sheet: script gắn trực tiếp vào Sheet (`getActiveSprea
 - Đăng ký lại cùng **email + họ tên** → ghi đè dòng cũ (bản mới nhất).
 - Áo vest chỉ có cột số lượng (nhà may đo trực tiếp), các món khác có thêm cột size.
 - Áo len / gile len: PHHS đăng ký nhỏ hơn 1 size (ghi chú trên form).
+
+## Email biên nhận
+Mỗi lượt đăng ký, script gửi 1 email kèm **ảnh biên nhận (PNG)** tới `NOTIFY_EMAIL`
+(Script properties); bỏ trống = chính tài khoản chạy script. Lỗi gửi mail không làm mất dòng ghi vào Sheet
+(phản hồi có `mailed: false`). Mỗi lần đăng ký lại cũng gửi 1 email mới.
+
+Sau khi cập nhật `Code.gs` có thêm quyền gửi mail: **Deploy → Manage deployments → ✏️ → New version → Deploy**,
+và **cấp quyền lại** khi Google hỏi (thêm quyền "Gửi email thay mặt bạn"). Gmail giới hạn ~100 email/ngày (tài khoản thường).

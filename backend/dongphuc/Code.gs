@@ -80,10 +80,40 @@ function doPost(e) {
       }
     }
     sh.getRange(target, 1, 1, row.length).setValues([row]);
-    return json_({ status: 'success', updated: target <= last });
+    var mailed = sendReceipt_(d);
+    return json_({ status: 'success', updated: target <= last, mailed: mailed });
   } catch (err) {
     return json_({ status: 'error', message: String(err) });
   } finally {
     try { lock.releaseLock(); } catch (e2) {}
+  }
+}
+
+/**
+ * Gửi email biên nhận (ảnh PNG đính kèm) cho người nhận nội bộ.
+ * Người nhận: Script property NOTIFY_EMAIL; bỏ trống = chính tài khoản chạy script.
+ * Lỗi gửi mail KHÔNG làm hỏng việc ghi Sheet.
+ */
+function sendReceipt_(d) {
+  try {
+    var to = PropertiesService.getScriptProperties().getProperty('NOTIFY_EMAIL') || Session.getEffectiveUser().getEmail();
+    var m = /^data:image\/png;base64,(.+)$/.exec(d.receipt || '');
+    var opts = { name: 'Đăng ký đồng phục 10T0' };
+    var summary = ITEMS.filter(function (it) { return Number(d[it.key + '_qty']) > 0; }).map(function (it) {
+      return '- ' + it.name + ': ' + d[it.key + '_qty'] + (it.size ? ' (Size ' + d[it.key + '_size'] + ')' : ' (may đo)');
+    }).join('\n') || 'Không đăng ký';
+    if (m) {
+      var file = 'Bien_nhan_' + String(d.fullName).replace(/[^\w]+/g, '_') + '.png';
+      opts.attachments = [Utilities.newBlob(Utilities.base64Decode(m[1]), 'image/png', file)];
+    }
+    var body = 'Học sinh: ' + d.fullName + ' - Lớp ' + (d.class || '') + ' - ' + (d.gender || '') +
+      '\nEmail đăng ký: ' + d.email +
+      '\nChiều cao / cân nặng: ' + (d.height || '?') + ' cm / ' + (d.weight || '?') + ' kg' +
+      '\nThời gian: ' + (d.submittedAt || '') +
+      '\n\n' + summary + (d.note ? '\n\nGhi chú: ' + d.note : '') + '\n\n(Phiếu biên nhận đính kèm.)';
+    MailApp.sendEmail(to, '[Đồng phục 10T0] ' + d.fullName + ' đã đăng ký', body, opts);
+    return true;
+  } catch (err) {
+    return false;
   }
 }
